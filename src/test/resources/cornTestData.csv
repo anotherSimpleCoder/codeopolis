@@ -1,0 +1,13 @@
+soilConditions,averageTemperatureSummer,averageTemperatureWinter,acres,expectedCrop,expectedCropDrought,expectedCropFritFly,expectedCropDeliaFly,expectedCropBarleyGoutFly,expectedCropPowderyMildew,expectedCropLeafDrought,expectedCropFusarium
+0.9,18,-5,100,360,252,151,151,151,113,113,113
+0.9,22.5,10,100,360,252,151,151,151,113,113,113
+0.9,22.6,0,100,288,202,121,121,121,91,91,91
+0.9,23,1,100,288,202,121,121,121,91,91,91
+0.9,24.8,-1,100,288,202,121,121,121,91,91,91
+0.9,1,10,100,360,252,151,151,151,113,113,113
+0.9,0,10,100,360,252,151,151,151,113,113,113
+0.9,-1,10,100,360,252,151,151,151,113,113,113
+0,18,-5,100,0,0,0,0,0,0,0,0
+1,18,10,100,400,280,168,168,168,126,126,126
+0.9,18,10,0,0,0,0,0,0,0,0,0
+0.9,18,10,-1,0,0,0,0,0,0,0,0
