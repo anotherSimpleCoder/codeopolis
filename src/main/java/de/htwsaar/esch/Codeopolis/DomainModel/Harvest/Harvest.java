@@ -1,7 +1,6 @@
 package de.htwsaar.esch.Codeopolis.DomainModel.Harvest;
 
 import java.io.Serializable;
-import java.util.Arrays;
 
 import de.htwsaar.esch.Codeopolis.DomainModel.Game;
 import de.htwsaar.esch.Codeopolis.DomainModel.Game.GrainType;

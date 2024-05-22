@@ -5,6 +5,7 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.Iterator;
+import java.util.Random;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -90,6 +91,25 @@ public class LinkedListTests {
 		
 		for(int i: this.testList) {
 			assertEquals(42, i);
+		}
+	}
+	
+	@Test
+	public void testSort() {
+		Random random = new Random();
+		
+		for(int i = 0; i < 10; i++) {
+			int number = random.nextInt();
+			this.testList.addLast(number);
+		}
+		
+		this.testList.sort();
+		
+		for(int i = 0; i < 9; i++) {
+			int curr = this.testList.get(i);
+			int next = this.testList.get(i+1);
+			
+			assertTrue(curr < next);
 		}
 	}
 }

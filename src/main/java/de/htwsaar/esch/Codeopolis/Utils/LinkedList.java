@@ -3,7 +3,7 @@ package de.htwsaar.esch.Codeopolis.Utils;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
 
-public class LinkedList<T> implements Iterable<T> {
+public class LinkedList<T extends Comparable<T>> implements Iterable<T> {
 	public class Node {
 		private T data;
 		private Node next;
@@ -136,6 +136,22 @@ public class LinkedList<T> implements Iterable<T> {
 		return this.new ListIterator();
 	}
 	
+	public void sort() {
+        // Sortierter Bereich a[i] ... a[n-1]
+        for (int i = this.size(); i > 0; i--) {
+            // Unsortierter Bereich a[0] ... a[i-1]
+            for (int j = 0; j < i - 1; j++) {
+                // Werte a[j] und a[j+1] in falscher Reihenfolge?
+                if (this.get(j).compareTo(this.get(j+1)) == 1) {
+                    // Werte vertauschen
+                    T temp = this.get(j);
+                    this.set(this.get(j+1), j);
+                    this.set(temp, j+1);
+                }
+            }
+        }
+	}
+	
 	public boolean equals(LinkedList<T> obj) {
 		if(this.size != obj.size) {
 			return false;
@@ -149,5 +165,18 @@ public class LinkedList<T> implements Iterable<T> {
 		}
 		
 		return true;
+	}
+	
+	@Override
+	public String toString() {
+		StringBuilder sb = new StringBuilder("[");		
+		
+		for(T data: this) {		
+			sb.append(data.toString() + ",");
+		}
+		
+		sb.append("]");
+		
+		return sb.toString();
 	}
 }

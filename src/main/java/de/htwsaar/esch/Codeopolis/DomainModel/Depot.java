@@ -388,6 +388,7 @@ public class Depot {
 			}
 			
 			public String visualize() {
+				this.siloInfos.sort();
 				return String.join("\n", this.siloInfos);
 			}
 			
