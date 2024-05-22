@@ -12,6 +12,24 @@ public class Silo implements Serializable{
     private final int capacity;
     private int fillLevel;
     private int stockIndex = -1;
+    
+    public class Status {
+    	private int capacity;
+    	private int fillLevel;
+    	
+    	private Status(int capacity, int fillLevel) {
+    		this.capacity = capacity;
+    		this.fillLevel = fillLevel;
+    	}
+    	
+    	public int getCapacity() {
+			return capacity;
+		}
+    	
+    	public int getFillLevel() {
+			return fillLevel;
+		}
+    }
 
     /**
      * Constructs a Silo object with the specified initial capacity.
@@ -193,6 +211,10 @@ public class Silo implements Serializable{
     public int getHarvestCount() {
         return this.stockIndex+1;
     }
+    
+    public Status getStatus() {
+		return new Status(this.capacity, this.fillLevel);
+	}
     
     /**
      * Simulates the decay of grain in all harvests stored in the silo over time.

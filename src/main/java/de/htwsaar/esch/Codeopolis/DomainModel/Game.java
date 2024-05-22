@@ -96,9 +96,13 @@ public class Game extends GameEntity{
      * Starts the game and enters the game loop until the game is over.
      */
 	public void startGame() {
+		if(this.state == GameState.GAMEOVER) {
+			return;
+		}
+
 		this.state = GameState.RUNNING;
-		while(this.state != GameState.GAMEOVER)
-			gameLoop();
+		gameLoop();
+		startGame();
 	}
 	
 	/**

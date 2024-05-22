@@ -5,6 +5,9 @@ import java.util.Random;
 import de.htwsaar.esch.Codeopolis.DomainModel.Game.GrainType;
 import de.htwsaar.esch.Codeopolis.DomainModel.Harvest.*;
 import de.htwsaar.esch.Codeopolis.DomainModel.Plants.*;
+import de.htwsaar.esch.Codeopolis.DomainModel.Plants.Grain.Conditions;
+import de.htwsaar.esch.Codeopolis.DomainModel.Plants.Grain.Diseases;
+import de.htwsaar.esch.Codeopolis.DomainModel.Plants.Grain.Pests;
 import de.htwsaar.esch.Codeopolis.Exceptions.*;
 
 /**
@@ -90,7 +93,7 @@ public class City extends GameEntity {
      * @return True if the purchase was successful, false otherwise.
      */
 	public void buy(int price, int acres) throws InsufficientResourcesException{
-		if(this.acres == 0)
+		if(acres == 0)
 			return;
 		if(price * acres > this.depot.getTotalFillLevel())
 			throw new InsufficientResourcesException("Insufficient resources to buy " + acres + " acres.", price * acres, this.depot.getTotalFillLevel());
@@ -185,9 +188,63 @@ public class City extends GameEntity {
 	        case RYE:
 	            seed = new Rye();
 	            break;
-	        case WHEAT:
-	            seed = new Wheat();
+	        case WHEAT: {
+	        	Grain g13Amnesia = new WinterGrain(6f, 0.4f, 0.1f) {
+	        		@Override
+	        		public int harvest() {
+	        			return 2 * super.harvest();
+	        		}
+	        		
+					@Override
+					public void pestInfestation(Pests pest, Conditions conditions) {
+						switch(pest) {
+						case FritFly:
+							this.yieldRatio *= 0.75f;
+							break;
+						case BarleyGoutFly:
+							this.yieldRatio *= 0.7f;
+							break;
+						default:
+							break;
+					}
+						
+					}
+					
+					@Override
+					public void drought() {
+						this.yieldRatio *= 0.5;
+						
+					}
+					
+					@Override
+					public void diseaseOutbreak(Diseases disease, Conditions conditions) {
+						switch (disease) {
+							case PowderyMildew:
+								this.yieldRatio *= 0.7f;
+								break;
+							case LeafDrought:
+								if(conditions.getAverageTemperatureWinter() > this.getOPTIMAL_WINTER_TEMPERATURE() + 2f) {
+									this.yieldRatio *= 0.6f;
+								}
+								else {
+									this.yieldRatio *= 0.7;
+								}
+								break;
+							default:
+								break;
+						}
+						
+					}
+				};
+				int luckySpin = fortune.nextInt(1, 100);
+				
+	        	seed = new Wheat();
+				if(luckySpin <= 10) {
+					seed = g13Amnesia;
+				}
+				
 	            break;
+	        }
 	        // No default case needed as we are covering all enum constants
 			}
 			if(acres[grainTypeIndex] > 0 && seed != null) {
@@ -248,7 +305,7 @@ public class City extends GameEntity {
 
 		//Calculation of the harvest:
 		int[] harvested = new int[Game.GrainType.values().length];
-		Conditions thisYearsConditions = Conditions.generateRandomConditions();
+		Grain.Conditions thisYearsConditions = Grain.Conditions.generateRandomConditions();
 
 		boolean drought = this.fortune.nextFloat() > 0.8 ? true : false;
 		boolean fusarium = this.fortune.nextFloat() > 0.8 ? true : false;

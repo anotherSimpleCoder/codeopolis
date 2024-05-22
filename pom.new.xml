@@ -18,6 +18,7 @@
       <timezone>Europe/Berlin</timezone>
     </developer>
   </developers>
+
   <organization>
     <name>htw saar - Distributed Systems Lab</name>
     <url>https://dsl.htwsaar.de</url>
@@ -131,6 +132,9 @@
           <failsOnError>true</failsOnError>
           <includeTestSourceDirectory>true</includeTestSourceDirectory>
         </configuration>
+      </plugin>
+      <plugin>
+        <artifactId>maven-compiler-plugin</artifactId>
       </plugin>
       <plugin>
         <groupId>org.jacoco</groupId>
@@ -303,8 +307,8 @@
     </plugins>
   </reporting>
   <properties>
-    <maven.compiler.release>20</maven.compiler.release>
-    <mainClass>de.htwsaar.esch.Codeopolis.Presentation.Codeopolis</mainClass>
+    <maven.compiler.release>21</maven.compiler.release>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    <mainClass>de.htwsaar.esch.Codeopolis.Presentation.UserInterface</mainClass>
   </properties>
 </project>

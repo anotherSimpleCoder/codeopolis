@@ -1,5 +1,4 @@
 <?xml version="1.0" encoding="UTF-8"?>
-
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
   xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
@@ -33,7 +32,8 @@
 
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    <maven.compiler.release>21</maven.compiler.release>
+    <maven.compiler.release>20</maven.compiler.release>
+    <mainClass>de.htwsaar.esch.Codeopolis.Presentation.Codeopolis</mainClass>
   </properties>
 
   <dependencies>
@@ -181,11 +181,10 @@
             </execution>
           </executions>
         </plugin>
-        <plugin>
-          <!-- add Error Prone checks to Java compilation, see https://errorprone.info/docs/installation -->
+        <!-- <plugin>
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-compiler-plugin</artifactId>
-          <!-- <configuration>
+           <configuration>
             <compilerArgs>
               <arg>-XDcompilePolicy=simple</arg>
               <arg>-Xplugin:ErrorProne</arg>
@@ -197,8 +196,8 @@
                 <version>2.23.0</version>
               </path>
             </annotationProcessorPaths>
-          </configuration> -->
-        </plugin>
+          </configuration>
+        </plugin> -->
         <plugin>
           <!-- add JaCoCo runtime agent to tests and allow basic test coverage report creation, see https://www.jacoco.org/jacoco/trunk/doc/maven.html -->
           <groupId>org.jacoco</groupId>

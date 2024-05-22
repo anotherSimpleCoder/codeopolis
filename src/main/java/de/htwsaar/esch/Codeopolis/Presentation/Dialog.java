@@ -216,31 +216,60 @@ public class Dialog extends UserInterface{
     }
 	
 	/**
-     * Reads a positive integer input from the user.
+     * Reads a positive integer input from the user recursively.
      *
      * @return The positive integer entered by the user.
      */
 	private int readPositivIntegerInput() {
+		/*
+		 * result = input()
+		 * 
+		 * if(result >= 0):
+		 * 	return result
+		 * 
+		 * fehlermeldung
+		 * return readPositivIntegerInput()
+		 */
 		int result = -1;
-		String line;
-		while(result < 0) {
-			try {
-				line = input.next();
-				result = Integer.parseInt(line);
-				if(result < 0)
-					System.out.println("You entered a negative integer. Please try again.");
-			}
-			catch(NumberFormatException e) {
-				System.out.println("Error – Please enter an integer value");
-			}
-			catch(NoSuchElementException e) {
-				System.out.println(e);
-			}
-			catch(IllegalStateException e) {
-				System.out.println(e);
-			}
+		try {
+			result = input.nextInt();
+		} catch(NumberFormatException e) {
+	 		System.out.println("Error – Please enter an integer value");
 		}
-		return result;
+	 	catch(NoSuchElementException e) {
+	 		System.out.println(e);
+	 	}
+	 	catch(IllegalStateException e) {
+	 		System.out.println(e);
+	 	}
+
+		if(result >= 0) {
+			return result;
+		}
+
+		System.out.println("You entered a negative integer. Please try again.");
+		return readPositivIntegerInput();		
+
+		// int result = -1;
+		// String line;
+		// while(result < 0) {
+		// 	try {
+		// 		line = input.next();
+		// 		result = Integer.parseInt(line);
+		// 		if(result < 0)
+		// 			System.out.println("You entered a negative integer. Please try again.");
+		// 	}
+		// 	catch(NumberFormatException e) {
+		// 		System.out.println("Error – Please enter an integer value");
+		// 	}
+		// 	catch(NoSuchElementException e) {
+		// 		System.out.println(e);
+		// 	}
+		// 	catch(IllegalStateException e) {
+		// 		System.out.println(e);
+		// 	}
+		// }
+		// return result;
 	}
 	
 	@Override

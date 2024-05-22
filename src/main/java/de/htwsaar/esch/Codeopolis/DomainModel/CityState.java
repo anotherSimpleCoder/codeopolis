@@ -3,6 +3,8 @@ package de.htwsaar.esch.Codeopolis.DomainModel;
 import java.io.Serializable;
 import java.util.Arrays;
 
+import de.htwsaar.esch.Codeopolis.Utils.LinkedList;
+
 /**
  * Represents the state of a city.
  */
@@ -172,7 +174,7 @@ public class CityState implements Serializable{
                 year == other.year &&
                 name.equals(other.name) &&
                 Arrays.equals(bushels, other.bushels) &&
-                Arrays.equals(silos, other.silos);
+                silos.equals(other.silos);
     }
 
 
