@@ -8,7 +8,7 @@ import java.util.Iterator;
 import java.util.NoSuchElementException;
 
 public class Depot {
-    private Silo[] silos;
+    private LinkedList<Silo> silos;
     
     private class DepotIterator implements Iterator<Status> {
     	private int i;
@@ -21,8 +21,8 @@ public class Depot {
     	
 		@Override
 		public boolean hasNext() {
-			for(int j = this.i; j < silos.length; j++) {
-				Silo silo = silos[j];
+			for(int j = this.i; j < silos.size(); j++) {
+				Silo silo = silos.get(j);
 				
 				if(silo.getGrainType() == this.type || (silo.getGrainType() == null && silo.getFillLevel() == 0)) {
 					i = j;
@@ -39,7 +39,7 @@ public class Depot {
 				throw new NoSuchElementException();
 			}
 			
-			Silo s = silos[i];
+			Silo s = silos.get(i);
 			this.i++;
 			return s.getStatus();
 		}
@@ -53,9 +53,9 @@ public class Depot {
      * @param capacityPerSilo  The capacity per silo.
      */
     public Depot(int numberOfSilos, int capacityPerSilo) {
-        this.silos = new Silo[numberOfSilos];
+        this.silos = new LinkedList<Silo>();
         for (int i = 0; i < numberOfSilos; i++) {
-            this.silos[i] = new Silo(capacityPerSilo);
+            this.silos.addLast(new Silo(capacityPerSilo));
         }
     }
     
@@ -65,14 +65,14 @@ public class Depot {
      *
      * @param silosArray The array of Silo objects to be copied into the depot.
      */
-    public Depot(Silo[] silosArray) {
-        if (silosArray == null) {
-            this.silos = silosArray;
+    public Depot(LinkedList<Silo> silos) {
+        if (silos == null) {
+            this.silos = silos;
         } else {
-            this.silos = new Silo[silosArray.length];
-            for (int i = 0; i < silosArray.length; i++) {
-                // Assuming Silo has a copy constructor to create a deep copy
-                this.silos[i] = silosArray[i];
+            this.silos = new LinkedList<Silo>();
+            
+            for(Silo silo: silos) {
+            	this.silos.addLast(silo);
             }
         }
     }
@@ -107,13 +107,15 @@ public class Depot {
      * @return A copy of the silos array.
      */
     //TODO: Implement the array copy
-    public Silo[] getSilos() {
+    public LinkedList<Silo> getSilos() {
         // Create a new array of Silo with the same length as the original
-        Silo[] silosCopy = new Silo[this.silos.length];
-        for (int i = 0; i < this.silos.length; i++) {
-            // Assume Silo has a copy constructor to create a deep copy of each Silo object
-            silosCopy[i] = new Silo(this.silos[i]);
+        LinkedList<Silo> silosCopy = new LinkedList<Silo>();
+        
+        
+        for(Silo silo: this.silos) {
+        	silosCopy.addLast(silo);
         }
+        
         return silosCopy;
     }
 
@@ -224,8 +226,8 @@ public class Depot {
     		
     		return totalAmountOfBushels;
     	}
-    	int partion = amount / this.silos.length;
-    	int remainder = amount % this.silos.length;
+    	int partion = amount / this.silos.size();
+    	int remainder = amount % this.silos.size();
     	
     	for(Silo silo: this.silos) {
     		if(silo.getFillLevel() < partion) {
@@ -240,8 +242,8 @@ public class Depot {
     	
     	int j = 0;
     	while(remainder > 0) {
-    		if(this.silos[j].getFillLevel() > 0) {
-    			this.silos[j].takeOut(1);
+    		if(this.silos.get(j).getFillLevel() > 0) {
+    			this.silos.get(j).takeOut(1);
     			remainder--;
     		}
     		j = (j+1)%Game.GrainType.values().length;	
@@ -255,13 +257,12 @@ public class Depot {
      * @param numberOfSilos    The number of silos to add.
      * @param capacityPerSilo  The capacity per silo.
      */
-    public void expand(int numberOfSilos, int capacityPerSilo) {
-    	Silo[] newSilos = new Silo[silos.length + numberOfSilos];
-        System.arraycopy(silos, 0, newSilos, 0, silos.length);
-        for (int i = silos.length; i < newSilos.length; i++) {
-            newSilos[i] = new Silo(capacityPerSilo);
+    public void expand(int numberOfSilos, int capacityPerSilo) {        
+        int newSiloSize = this.silos.size() + numberOfSilos;
+        for(int i = silos.size(); i < newSiloSize; i++) {
+        	this.silos.addLast(new Silo(capacityPerSilo));
         }
-        silos = newSilos;
+        
         this.takeOut((int)(numberOfSilos * GameConfig.DEPOT_EXPANSION_COST)); //#Issue42
     }
 
