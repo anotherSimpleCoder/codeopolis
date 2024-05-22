@@ -13,7 +13,7 @@ import de.htwsaar.esch.Codeopolis.Utils.LinkedList;
 
 public class LinkedListTests {
 	private LinkedList<Integer> testList;
-	
+
 	@BeforeEach
 	public void setup() {
 		this.testList = new LinkedList<Integer>();

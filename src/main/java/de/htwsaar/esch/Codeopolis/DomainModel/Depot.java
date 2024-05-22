@@ -273,7 +273,7 @@ public class Depot {
 
         int index = 0;
         for (Silo silo : silos) {
-            Harvest[] siloHarvests = silo.emptySilo();
+            LinkedList<Harvest> siloHarvests = silo.emptySilo();
             if(siloHarvests != null) {
 	            for (Harvest harvest : siloHarvests) {
 	                allHarvests[index++] = harvest;

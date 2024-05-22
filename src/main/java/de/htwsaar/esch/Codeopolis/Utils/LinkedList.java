@@ -19,7 +19,7 @@ public class LinkedList<T> implements Iterable<T> {
 		
 		@Override
 		public boolean hasNext() {
-			return i.next != null;
+			return i != null;
 		}
 
 		@Override
@@ -28,8 +28,9 @@ public class LinkedList<T> implements Iterable<T> {
 				throw new NoSuchElementException();
 			}
 			
+			T data = i.data;
 			i = i.next;
-			return i.data;
+			return data;
 		}
 		
 	}
