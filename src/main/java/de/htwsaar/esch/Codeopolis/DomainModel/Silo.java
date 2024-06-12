@@ -78,9 +78,12 @@ public class Silo implements Serializable, Comparable<Silo> {
         }
 
         
+        
         if(fillLevel < capacity) {
 	        // Check if the entire harvest can be stored
 	        int remainingCapacity = this.capacity - this.fillLevel;
+	        
+	        
 	        if(harvest.getAmount() <= remainingCapacity) {
 	        	this.stockIndex++;
 	        	this.stock.addLast(harvest);
@@ -114,9 +117,8 @@ public class Silo implements Serializable, Comparable<Silo> {
         }
         else {
         	LinkedList<Harvest> removedHarvests = new LinkedList<Harvest>();
-        	for(Harvest harvest: stock) {
-        		removedHarvests.addLast(harvest);
-        	}
+        	this.stock.forEach((harvest)-> removedHarvests.addLast(harvest));
+        	
         	stock.clear();
         	
             stockIndex = -1;
@@ -210,16 +212,24 @@ public class Silo implements Serializable, Comparable<Silo> {
      * @return The total amount of grain that decayed in all harvests in the silo.
      */
     public int decay(int currentYear) {
-        int totalDecayedAmount = 0;
-        
-        for(Harvest harvest: stock) {
-        	totalDecayedAmount += harvest.decay(currentYear);
-        }
+        double totalDecayAmount = this.stock.sum((harvest)-> (double) harvest.decay(currentYear));
 
-        fillLevel -= totalDecayedAmount;
-        return totalDecayedAmount;
+        fillLevel -= totalDecayAmount;
+        return (int) totalDecayAmount;
+    }
+    
+    public LinkedList<Harvest> getStockCopy() {
+    	LinkedList<Harvest> stockCopy = new LinkedList<Harvest>();
+    	this.stock.forEach(stockCopy::addLast);
+    	
+    	return stockCopy;
     }
 
+    //What exactly does this do?
+    public void copyStock() {
+    	
+    }
+    
 	@Override
 	public int compareTo(Silo o) {
 		return Integer.compare(this.fillLevel, o.fillLevel);

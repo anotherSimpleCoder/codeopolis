@@ -1,8 +1,12 @@
 package de.htwsaar.esch.Codeopolis.DomainModel;
 
+import java.util.Comparator;
 import java.util.Random;
+import java.util.function.Predicate;
 
 import de.htwsaar.esch.Codeopolis.Exceptions.*;
+import de.htwsaar.esch.Codeopolis.Utils.DepotVisualizer;
+import de.htwsaar.esch.Codeopolis.Utils.LinkedList;
 
 /**
  * The Game class represents a game instance of the Codeopolis game.
@@ -284,5 +288,20 @@ public class Game extends GameEntity{
      */
 	public void quitGame() {
 		this.state = GameState.GAMEOVER;
+	}
+
+	public String getDepotDetails(Predicate<Silo> filterCriteria, Comparator<Silo> sortingCriteria) {
+		DepotVisualizer depotVisualizer = new DepotVisualizer();
+		Depot depot = new Depot(this.getCityState().getSilos());
+		
+		if(filterCriteria == null) {
+			filterCriteria = (silo) -> true;
+		}
+		
+		if(sortingCriteria == null) {
+			sortingCriteria = (silo1, silo2) -> 0;
+		}
+		
+		return depot.toString(filterCriteria, sortingCriteria);
 	}
 }

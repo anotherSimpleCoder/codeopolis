@@ -29,14 +29,15 @@ public class Dialog extends UserInterface{
 	private static final int HARD = 3;
 	
 	private Game currentGame;
+	private DepotDetailsDialog depotDetails;
 	
 	/**
      * Initializes a new instance of the Dialog class.
      */
     public Dialog() {
-    	input = new Scanner(System.in);
-    	currentGame = null;
-    	
+    	this.input = new Scanner(System.in);
+    	this.currentGame = null;
+    	this.depotDetails = null;
     }
 
     /**
@@ -155,8 +156,9 @@ public class Dialog extends UserInterface{
 			default:
 				throw new UnsupportedOperationException("The selected difficulty level "+difficulty+" is not implemented.");
 		}
-	    currentGame = new Game(java.util.UUID.randomUUID().toString(), cityName, newGameDifficulty, this); //Issue#11
-	    currentGame.startGame();
+	    this.currentGame = new Game(java.util.UUID.randomUUID().toString(), cityName, newGameDifficulty, this); //Issue#11
+	    this.depotDetails = new DepotDetailsDialog(currentGame);
+	    this.currentGame.startGame();
 	}
 	
 	private void saveGame() {
@@ -352,6 +354,7 @@ public class Dialog extends UserInterface{
 		}
 			
 		System.out.println("Here is the detaild information on your depot:");
+		this.depotDetails.start();
 		System.out.println(result.getDepotState());
 		
 		System.out.println("Press some key to start the new year. Enter SAVE to save the current game and continue. Enter QUIT to quit the current game. ");

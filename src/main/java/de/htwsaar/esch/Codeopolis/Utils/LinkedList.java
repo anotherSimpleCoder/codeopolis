@@ -1,7 +1,11 @@
 package de.htwsaar.esch.Codeopolis.Utils;
 
+import java.util.Comparator;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
+import java.util.function.Consumer;
+import java.util.function.Function;
+import java.util.function.Predicate;
 
 public class LinkedList<T extends Comparable<T>> implements Iterable<T> {
 	public class Node {
@@ -65,6 +69,7 @@ public class LinkedList<T extends Comparable<T>> implements Iterable<T> {
 		
 		Node newRoot = this.root.next;
 		Node result = this.root;
+		
 		this.root = newRoot;
 		this.size--;
 		
@@ -126,28 +131,68 @@ public class LinkedList<T extends Comparable<T>> implements Iterable<T> {
 				
 				return toBeDeleted.data;
 			}
+			
+			tmp = tmp.next;
 		}
 		
 		throw new IndexOutOfBoundsException();
 	}
+	
+	public LinkedList<T> filter(Predicate<? super T> filterPredicate) {
+		LinkedList<T> resultList = new LinkedList<T>();
+		
+		for(T element: this) {
+			if(filterPredicate.test(element)) {
+				resultList.addLast(element);
+			}
+		}
+		
+		return resultList;
+	}
 
+	public void forEach(Consumer<? super T> consumerForElements) {
+		for(T element: this) {
+			consumerForElements.accept(element);
+		}
+	}
+	
+	public void removeIf(Predicate<T> removePredicate) {
+		for(int i = 0; i < this.size; i++) {
+			if(removePredicate.test(this.get(i))) {
+				this.remove(i);
+			}
+		}
+	}
+	
+	public void addIf(T element, Predicate<T> addPredicate) {
+		if(addPredicate.test(element)) {
+			this.addLast(element);
+		}
+	}
+	
+	public double sum(Function<T, Double> function) {
+		double result = 0;
+		
+		for(T element: this) {
+			result += function.apply(element);
+		}
+		
+		return result;
+	}
+	
 	@Override
 	public Iterator<T> iterator() {
 		return this.new ListIterator();
 	}
 	
-	public void sort() {
-        // Sortierter Bereich a[i] ... a[n-1]
+	public void sort(Comparator<T> comparator) {
         for (int i = this.size(); i > 0; i--) {
-            // Unsortierter Bereich a[0] ... a[i-1]
             for (int j = 0; j < i - 1; j++) {
-                // Werte a[j] und a[j+1] in falscher Reihenfolge?
-                if (this.get(j).compareTo(this.get(j+1)) == 1) {
-                    // Werte vertauschen
+            	if(comparator.compare(this.get(j), this.get(j+1)) == 1) {
                     T temp = this.get(j);
                     this.set(this.get(j+1), j);
                     this.set(temp, j+1);
-                }
+            	}
             }
         }
 	}
@@ -159,7 +204,7 @@ public class LinkedList<T extends Comparable<T>> implements Iterable<T> {
 		
 		
 		for(int i = 0; i < this.size; i++) {
-			if(this.get(i) != obj.get(i)) {
+			if(this.get(i).compareTo(obj.get(i)) == 0) {
 				return false;
 			}
 		}

@@ -84,6 +84,53 @@ public class LinkedListTests {
 	}
 	
 	@Test
+	public void testFilter() throws Exception {
+		for(int i = 0; i < 100; i++) {
+			this.testList.addLast(i);
+		}
+		
+		LinkedList<Integer> resultValues = this.testList.filter((number)->number % 2 == 0);
+		
+		for(int value: resultValues) {
+			assertTrue(value % 2 == 0);
+		}
+	}
+	
+	@Test
+	public void testRemoveIf() throws Exception {
+		for(int i = 0; i < 100; i++) {
+			this.testList.addLast(i);
+		}
+		
+		this.testList.removeIf((number)-> number % 2 == 0);
+	
+		for(int number: this.testList) {
+			assertTrue(number % 2 == 1);
+		}
+	}
+	
+	@Test
+	public void testAddIf() throws Exception {
+		for(int i = 0; i < 100; i++) {
+			this.testList.addIf(i, (number)-> number % 2 == 0);
+		}
+		
+		for(int number: this.testList) {
+			assertTrue(number % 2 == 0);
+		}
+	}
+	
+	@Test
+	public void testSum() {
+		for(int i = 0; i <= 100; i++) {
+			this.testList.addLast(i);
+		}
+		
+		double sum = this.testList.sum((number)->number.doubleValue());
+		assertEquals(5050.0f, sum);
+	}
+	
+	@Test
 	public void testIterator() {
 		for(int i = 0; i < 10; i++) {
 			this.testList.addLast(42);
@@ -103,7 +150,7 @@ public class LinkedListTests {
 			this.testList.addLast(number);
 		}
 		
-		this.testList.sort();
+		this.testList.sort((number1, number2) -> number1.compareTo(number2));
 		
 		for(int i = 0; i < 9; i++) {
 			int curr = this.testList.get(i);
