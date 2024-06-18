@@ -226,8 +226,10 @@ public class Silo implements Serializable, Comparable<Silo> {
     }
 
     //What exactly does this do?
-    public void copyStock() {
-    	
+    public void copyStock(LinkedList<Harvest> other) {
+    	other.forEach(harvest -> {
+    		this.stock.addLast(harvest);
+    	});
     }
     
 	@Override
