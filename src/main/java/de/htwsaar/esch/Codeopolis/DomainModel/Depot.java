@@ -135,7 +135,7 @@ public class Depot {
      * @param grainType The grain type for which to retrieve the capacity.
      * @return The total capacity of the depot for the specified grain type.
      */
-    public int getCapacity(Game.GrainType grainType) {
+    public int getCapacity(Game.GrainType grainType) {    	
         int totalCapacity = 0;
         Iterator<Status> iterator = this.getIterator(grainType);
         
@@ -150,6 +150,7 @@ public class Depot {
         }
         
         return totalCapacity;
+        
     }
 
     /**
@@ -303,11 +304,7 @@ public class Depot {
      * @return The total amount of grain that decayed in the depot.
      */
     public int decay(int currentYear) {
-        int totalDecayedAmount = 0;
-        for (Silo silo : silos) {
-            totalDecayedAmount += silo.decay(currentYear);
-        }
-        return totalDecayedAmount;
+        return (int) silos.sum(silo -> (double)silo.decay(currentYear));
     }
 
 
@@ -327,14 +324,8 @@ public class Depot {
 	 * 
 	 * @return The total capacity of the storage system.
 	 */
-	public int totalCapacity() {
-		int totalCapacity = 0;
-		
-		for(Silo silo: this.silos) {
-			totalCapacity += silo.getCapacity();
-		}
-		
-		return totalCapacity;
+	public int totalCapacity() {		
+		return (int)silos.sum(silo -> (double)silo.getCapacity());
 	}
 
 	/**

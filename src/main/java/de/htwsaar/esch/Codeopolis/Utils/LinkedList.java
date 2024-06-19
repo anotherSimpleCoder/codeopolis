@@ -54,12 +54,12 @@ public class LinkedList<T extends Comparable<T>> implements Iterable<T> {
 			return;
 		}
 		
-		Node tmp = this.root;
-		while(tmp.next != null) {
-			tmp = tmp.next;
+		Node oldRoot = this.root;
+		while(oldRoot.next != null) {
+			oldRoot = oldRoot.next;
 		}
 
-		tmp.next = new Node(data, null);
+		oldRoot.next = new Node(data, null);
 	}
 	
 	public T removeFirst() {
@@ -68,12 +68,12 @@ public class LinkedList<T extends Comparable<T>> implements Iterable<T> {
 		}
 		
 		Node newRoot = this.root.next;
-		Node result = this.root;
+		Node deletedRootNode = this.root;
 		
 		this.root = newRoot;
 		this.size--;
 		
-		return result.data;
+		return deletedRootNode.data;
 	}
 	
 	public boolean isEmpty() {
@@ -85,28 +85,28 @@ public class LinkedList<T extends Comparable<T>> implements Iterable<T> {
 	}
 	
 	public T get(int index) throws IndexOutOfBoundsException {		
-		Node tmp = this.root;
-		for(int j = 0; j < this.size; j++) {
-			if(j == index) {
-				return tmp.data;
+		Node iterationNode = this.root;
+		for(int iterationIndex = 0; iterationIndex < this.size; iterationIndex++) {
+			if(iterationIndex == index) {
+				return iterationNode.data;
 			}
 			
-			tmp = tmp.next;
+			iterationNode = iterationNode.next;
 		}
 		
 		throw new IndexOutOfBoundsException();
 	}
 	
 	public T set(T newData, int index) throws IndexOutOfBoundsException {
-		Node tmp = this.root;
-		for(int j = 0; j < this.size; j++) {
-			if(j == index) {
-				T oldData = tmp.data;
-				tmp.data = newData;
+		Node iterationNode = this.root;
+		for(int iterationIndex = 0; iterationIndex < this.size; iterationIndex++) {
+			if(iterationIndex == index) {
+				T oldData = iterationNode.data;
+				iterationNode.data = newData;
 				return oldData;
 			}
 			
-			tmp = tmp.next;
+			iterationNode = iterationNode.next;
 		}
 		
 		throw new IndexOutOfBoundsException();
@@ -122,17 +122,17 @@ public class LinkedList<T extends Comparable<T>> implements Iterable<T> {
 			return this.removeFirst();
 		}
 		
-		Node tmp = this.root;
-		for(int j = 0; j < this.size; j++) {
-			if(j == index-1) {
-				Node toBeDeleted = tmp.next;
-				tmp.next = toBeDeleted.next;
+		Node iterationNode = this.root;
+		for(int iterationIndex = 0; iterationIndex < this.size; iterationIndex++) {
+			if(iterationIndex == index-1) {
+				Node toBeDeleted = iterationNode.next;
+				iterationNode.next = toBeDeleted.next;
 				size--;
 				
 				return toBeDeleted.data;
 			}
 			
-			tmp = tmp.next;
+			iterationNode = iterationNode.next;
 		}
 		
 		throw new IndexOutOfBoundsException();
@@ -156,10 +156,10 @@ public class LinkedList<T extends Comparable<T>> implements Iterable<T> {
 		}
 	}
 	
-	public void removeIf(Predicate<T> removePredicate) {
-		for(int i = 0; i < this.size; i++) {
-			if(removePredicate.test(this.get(i))) {
-				this.remove(i);
+	public void removeIf(Predicate<T> removePredicate) {		
+		for(int iterationIndex = 0; iterationIndex < this.size; iterationIndex++) {
+			if(removePredicate.test(this.get(iterationIndex))) {
+				this.remove(iterationIndex);
 			}
 		}
 	}
@@ -186,12 +186,12 @@ public class LinkedList<T extends Comparable<T>> implements Iterable<T> {
 	}
 	
 	public void sort(Comparator<T> comparator) {
-        for (int i = this.size(); i > 0; i--) {
-            for (int j = 0; j < i - 1; j++) {
-            	if(comparator.compare(this.get(j), this.get(j+1)) == 1) {
-                    T temp = this.get(j);
-                    this.set(this.get(j+1), j);
-                    this.set(temp, j+1);
+        for (int unsortedIndex = this.size(); unsortedIndex > 0; unsortedIndex--) {
+            for (int iterationIndex = 0; iterationIndex < unsortedIndex - 1; iterationIndex++) {
+            	if(comparator.compare(this.get(iterationIndex), this.get(iterationIndex+1)) == 1) {
+                    T swapNode = this.get(iterationIndex);
+                    this.set(this.get(iterationIndex+1), iterationIndex);
+                    this.set(swapNode, iterationIndex+1);
             	}
             }
         }
@@ -203,8 +203,8 @@ public class LinkedList<T extends Comparable<T>> implements Iterable<T> {
 		}
 		
 		
-		for(int i = 0; i < this.size; i++) {
-			if(this.get(i).compareTo(obj.get(i)) == 0) {
+		for(int iterationIndex = 0; iterationIndex < this.size; iterationIndex++) {
+			if(this.get(iterationIndex).compareTo(obj.get(iterationIndex)) == 0) {
 				return false;
 			}
 		}
@@ -214,14 +214,14 @@ public class LinkedList<T extends Comparable<T>> implements Iterable<T> {
 	
 	@Override
 	public String toString() {
-		StringBuilder sb = new StringBuilder("[");		
+		StringBuilder stringBuilder = new StringBuilder("[");		
 		
 		for(T data: this) {		
-			sb.append(data.toString() + ",");
+			stringBuilder.append(data.toString() + ",");
 		}
 		
-		sb.append("]");
+		stringBuilder.append("]");
 		
-		return sb.toString();
+		return stringBuilder.toString();
 	}
 }

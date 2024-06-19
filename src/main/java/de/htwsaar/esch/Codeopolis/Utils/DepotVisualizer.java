@@ -15,7 +15,7 @@ public class DepotVisualizer {
 		String grainAmount = String.format("Amount of Grain %d units", silo.getFillLevel());
 		double fillPercentage = (double) silo.getFillLevel() / silo.getCapacity() * 100;
 		
-		String fillBar = String.format("%s %.2f %& filled", buildBar(fillPercentage), fillPercentage);
+		String fillBar = String.format("%s %.2f filled", buildBar(fillPercentage), fillPercentage);
 		String capacity = String.format("Capacity %d unit", silo.getCapacity());
 		
 		String result = String.format("%s \n %s \n %s \n %s \n", header, grainAmount, fillBar, capacity);

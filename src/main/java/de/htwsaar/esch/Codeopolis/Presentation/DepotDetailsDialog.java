@@ -27,7 +27,6 @@ public class DepotDetailsDialog {
 			System.out.println("2. Print filtered and sorted silos");
 			System.out.println("3. Exit");
 		
-			LinkedList<Silo> silos = game.getCityState().getSilos();
 			int choice = scanner.nextInt();
 			
 			switch(choice) {
@@ -39,7 +38,7 @@ public class DepotDetailsDialog {
 					break;
 				case 3: 
 					System.out.println("Exiting...");
-					break;
+					return;
 				default:
 					System.out.println("Invalid choice. Please try again.");
 			}
