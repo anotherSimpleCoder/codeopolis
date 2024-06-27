@@ -8,30 +8,29 @@ package de.htwsaar.esch.Codeopolis.DomainModel.Plants;
 public class Corn extends SpringGrain{
 
 	/**
-     * Constructs a new `Corn` object with predefined characteristics.
-     */
+	 * Constructs a new `Corn` object with predefined characteristics.
+	 */
 	public Corn() {
 		super(4f, 0.2f, 0.25f);
 	}
 
 	/**
-     * Overrides the `drought` method from the parent class `SpringGrain` to specify
-     * how corn responds to drought conditions by reducing its yield ratio.
-     */
-    @Override
+	 * Overrides the `drought` method from the parent class `SpringGrain` to specify
+	 * how corn responds to drought conditions by reducing its yield ratio.
+	 */
+	@Override
 	public void drought() {
 		this.yieldRatio *= 0.7;
 	}
 
-    /**
-     * Overrides the `pestInfestation` method from the parent class `SpringGrain` to specify
-     * how corn responds to pest infestation, specifically Frit Fly, by reducing its yield ratio.
-     *
-     * @param pest       The type of pest infestation.
-     * @param conditions The environmental conditions affecting grain growth.
-     */
-    @Override
-	public void pestInfestation(Pests pest, Conditions conditions) {
+	/**
+	 * Overrides the `pestInfestation` method from the parent class `SpringGrain` to specify
+	 * how corn responds to pest infestation, specifically Frit Fly, by reducing its yield ratio.
+	 *
+	 * @param pest       The type of pest infestation.
+	 */
+	@Override
+	public void pestInfestation(Pests pest) {
 		switch(pest) {
 			case FritFly:
 				this.yieldRatio *= 0.6f;
@@ -41,15 +40,14 @@ public class Corn extends SpringGrain{
 		}
 	}
 
-    /**
-     * Overrides the `diseaseOutbreak` method from the parent class `SpringGrain` to specify
-     * how corn responds to disease outbreaks, specifically Powdery Mildew, by reducing its yield ratio.
-     *
-     * @param disease    The type of disease outbreak.
-     * @param conditions The environmental conditions affecting grain growth.
-     */
-    @Override
-	public void diseaseOutbreak(Diseases disease, Conditions conditions) {
+	/**
+	 * Overrides the `diseaseOutbreak` method from the parent class `SpringGrain` to specify
+	 * how corn responds to disease outbreaks, specifically Powdery Mildew, by reducing its yield ratio.
+	 *
+	 * @param disease    The type of disease outbreak.
+	 */
+	@Override
+	public void diseaseOutbreak(Diseases disease) {
 		switch (disease) {
 			case PowderyMildew:
 				this.yieldRatio *= 0.75f;
@@ -59,5 +57,5 @@ public class Corn extends SpringGrain{
 		}
 	}
 
- 
+
 }

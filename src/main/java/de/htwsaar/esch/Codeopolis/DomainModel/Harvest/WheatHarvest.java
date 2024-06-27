@@ -18,8 +18,8 @@ public class WheatHarvest extends Harvest implements Serializable{
      * @param bushels The amount of wheat harvested.
      * @param year The year in which the harvest occurred.
      */
-    protected WheatHarvest(int bushels, int year) {
-        super(bushels, year);
+    protected WheatHarvest(int bushels, int year, float growsConditions) {
+        super(bushels, year, growsConditions);
     }
 
     /**
@@ -37,7 +37,7 @@ public class WheatHarvest extends Harvest implements Serializable{
             double decayPercentage = 0.02;
             for (int i = 1; i < yearsOfDecay; i++)
                 decayPercentage *= 2;
-
+            decayPercentage = decayPercentage * this.calculateDecayModifier();
             int decayedAmount = (int) (this.getAmount() * decayPercentage);
             this.remove(decayedAmount);
             return decayedAmount;
@@ -53,6 +53,6 @@ public class WheatHarvest extends Harvest implements Serializable{
      */
     @Override
     public Game.GrainType getGrainType() {
-    	return Game.GrainType.WHEAT;
+        return Game.GrainType.WHEAT;
     }
 }

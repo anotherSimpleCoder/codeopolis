@@ -1,6 +1,7 @@
 package de.htwsaar.esch.Codeopolis.DomainModel.Harvest;
 
 import java.io.Serializable;
+import java.util.Random;
 
 import de.htwsaar.esch.Codeopolis.DomainModel.Game;
 import de.htwsaar.esch.Codeopolis.DomainModel.Game.GrainType;
@@ -9,17 +10,20 @@ import de.htwsaar.esch.Codeopolis.DomainModel.Game.GrainType;
  * The Harvest class represents the annual harvest, containing information
  * about the amount of grain harvested and the year in which it occurred.
  */
-public abstract class Harvest implements Serializable, Comparable<Harvest>{
+public abstract class Harvest implements Serializable, Comparable<Harvest> {
     private int bushels;
-    private int year;
+    private final int year;
+
+    private final float durability; //The durability influences the speed of the decay process.
 
 
-    protected Harvest(int bushels, int year) {
+    protected Harvest(int bushels, int year, float growsConditions) {
         this.bushels = bushels;
         this.year = year;
+        this.durability = growsConditions;
     }
-    
-    
+
+
     /**
      * Creates a new Harvest instance based on the specified grain type, amount, and year.
      * This factory method centralizes the creation of Harvest objects, allowing for easy creation
@@ -34,30 +38,30 @@ public abstract class Harvest implements Serializable, Comparable<Harvest>{
      * @throws IllegalArgumentException If the specified grain type is not recognized or if the
      *         amount or year is not positive.
      */
-    public static Harvest createHarvest(Game.GrainType type, int amount, int year) {
+    public static Harvest createHarvest(Game.GrainType type, int amount, int year, float growsConditions) {
         switch(type) {
             case BARLEY:
-                return new BarleyHarvest(amount, year);
+                return new BarleyHarvest(amount, year, growsConditions);
             case CORN:
-                return new CornHarvest(amount, year);
+                return new CornHarvest(amount, year, growsConditions);
             case MILLET:
-                return new MilletHarvest(amount, year);
+                return new MilletHarvest(amount, year, growsConditions);
             case RICE:
-                return new RiceHarvest(amount, year);
+                return new RiceHarvest(amount, year, growsConditions);
             case RYE:
-                return new RyeHarvest(amount, year);
+                return new RyeHarvest(amount, year, growsConditions);
             case WHEAT:
-                return new WheatHarvest(amount, year);
+                return new WheatHarvest(amount, year, growsConditions);
             default:
                 throw new IllegalArgumentException("Unknown grain type: " + type);
         }
     }
-    
+
     /**
      * Creates and returns a deep copy of the specified {@link Harvest} object.
      * This method utilizes the factory pattern to generate a new instance of the same type
      * as the provided {@code other} harvest object, copying its state.
-     * 
+     *
      * This approach ensures that all properties specific to the actual type of the harvest,
      * such as grain type and amount, are preserved in the new instance, maintaining the
      * integrity of the harvest data.
@@ -72,7 +76,7 @@ public abstract class Harvest implements Serializable, Comparable<Harvest>{
         if (other == null) {
             throw new IllegalArgumentException("The provided harvest object cannot be null.");
         }
-        return createHarvest(other.getGrainType(), other.getAmount(), other.getYear());
+        return createHarvest(other.getGrainType(), other.getAmount(), other.getYear(), other.getDurability());
     }
 
     /**
@@ -94,6 +98,32 @@ public abstract class Harvest implements Serializable, Comparable<Harvest>{
     }
 
     /**
+     * Gets the durability of the harvest. The durability influences the speed of the decay process.
+     *
+     * @return The durability of the harvest.
+     */
+    protected float getDurability() {
+        return durability;
+    }
+
+
+    /**
+     * Calculates a decay modifier based on the durability.
+     * The modifier decreases as durability increases, particularly improving above 0.75.
+     *
+     * @return A double representing the decay modifier.
+     */
+    protected double calculateDecayModifier() {
+        if (durability > 0.75) {
+            // As durability increases above 0.75, decay resistance improves significantly
+            return 0.5 + 0.5 * (1.0 - durability);  // Gradual improvement in decay resistance
+        } else {
+            // Increased decay rate as durability decreases below 0.75
+            return 1.5 - 0.857 * durability;  // Gradual increase in decay rate
+        }
+    }
+
+    /**
      * Removes the specified amount of grain from the harvest.
      *
      * @param amount The amount of grain to be removed.
@@ -109,21 +139,21 @@ public abstract class Harvest implements Serializable, Comparable<Harvest>{
             return removedAmount;
         }
     }
-    
+
     /**
      * Simulates the decay of grain in the harvest over time.
      *
      * @return The amount of grain that decayed in this cycle.
      */
     public abstract int decay(int currentYear);
-    
+
     /**
      * Retrieves the type of grain stored in the silo.
      *
      * @return An integer representing the type of grain stored.
      */
     public abstract GrainType getGrainType();
-    
+
     /**
      * Returns a string representation of the harvest.
      *
@@ -135,7 +165,7 @@ public abstract class Harvest implements Serializable, Comparable<Harvest>{
                 ", year=" + year +
                 '}';
     }
-    
+
     /**
      * Splits the specified amount of grain into a new Harvest object,
      * leaving the remaining amount in the current Harvest object.
@@ -150,26 +180,33 @@ public abstract class Harvest implements Serializable, Comparable<Harvest>{
         }
 
         // Create a new Harvest object with the split amount of grain
-        Harvest newHarvest = Harvest.createHarvest(this.getGrainType(), amount, this.getYear());
+        Harvest newHarvest = Harvest.createHarvest(this.getGrainType(), amount, this.getYear(), this.durability);
 
         // Deduct the split amount from the current Harvest object
         remove(amount);
 
         return newHarvest;
     }
-    
+
     /**
      * Creates and returns a deep copy of this Harvest object.
-     * 
+     *
      * @return A deep copy of this Harvest object.
      */
     public Harvest copy() {
-    	return Harvest.createHarvest(this);
+        return Harvest.createHarvest(this);
     }
- 
-    
+
     @Override
-    public int compareTo(Harvest o) {
-    	return Integer.compare(this.year, o.year);
+    public int compareTo(Harvest other) {
+        // First compare durability. The harvest with higher durability should come first.
+        int durabilityComparison = Float.compare(other.durability, this.durability);
+        if (durabilityComparison != 0) {
+            return durabilityComparison;
+        }
+        // If durability is the same, compare by year to maintain consistency with equals (if implemented).
+        return Integer.compare(this.year, other.year);
     }
+
+
 }

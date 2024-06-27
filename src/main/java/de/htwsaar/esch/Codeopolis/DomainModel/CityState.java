@@ -1,22 +1,22 @@
 package de.htwsaar.esch.Codeopolis.DomainModel;
 
-import java.io.Serializable;
-import java.util.Arrays;
+import de.htwsaar.esch.Codeopolis.Util.LinkedList;
+import de.htwsaar.esch.Codeopolis.Util.Iterator;
 
-import de.htwsaar.esch.Codeopolis.Utils.LinkedList;
+import java.io.Serializable;
 
 /**
  * Represents the state of a city.
  */
 public class CityState implements Serializable{
-	private int residents;
-	private int[] bushels;
-	private int acres;
-	private int year;
-	private String name;
-	private String id;
-	private LinkedList<Silo> silos;
-	private int freeStorage;
+	private final int residents;
+	private final int[] bushels;
+	private final int acres;
+	private final int year;
+	private final String name;
+	private final String id;
+	private final LinkedList<Silo> silos;
+	private final int freeStorage;
 	
 	/**
      * Constructs a new CityState object with the specified residents, bushels, and acres.
@@ -161,21 +161,27 @@ public class CityState implements Serializable{
      * @return true if this object is the same as the obj argument; false otherwise.
      */
     @Override
-    public boolean equals(Object obj) {
-        if (this == obj) {
-            return true;
-        }
-        if (obj == null || getClass() != obj.getClass()) {
-            return false;
-        }
-        CityState other = (CityState) obj;
-        return residents == other.residents &&
-                acres == other.acres &&
-                year == other.year &&
-                name.equals(other.name) &&
-                Arrays.equals(bushels, other.bushels) &&
-                silos.equals(other.silos);
-    }
+	public boolean equals(Object obj) {
+		if (this == obj) {
+			return true;
+		}
+		if (obj == null || getClass() != obj.getClass()) {
+			return false;
+		}
+
+		LinkedList<Silo> other = ((CityState) obj).getSilos();
+		if (this.silos.size() != other.size()) {
+			return false;
+		}
+		Iterator<Silo> it1 = this.getSilos().iterator();
+		Iterator<Silo> it2 = other.iterator();
+		while (it1.hasNext() && it2.hasNext()) {
+			if (!it1.next().equals(it2.next())) {
+				return false;
+			}
+		}
+		return !(it1.hasNext() || it2.hasNext());
+	}
 
 
 

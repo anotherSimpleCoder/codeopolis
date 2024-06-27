@@ -1,56 +1,17 @@
 package de.htwsaar.esch.Codeopolis.DomainModel;
 
-import de.htwsaar.esch.Codeopolis.DomainModel.Silo.Status;
-import de.htwsaar.esch.Codeopolis.DomainModel.Game.GrainType;
 import de.htwsaar.esch.Codeopolis.DomainModel.Harvest.*;
-import de.htwsaar.esch.Codeopolis.Utils.DepotVisualizer;
-import de.htwsaar.esch.Codeopolis.Utils.LinkedList;
+import de.htwsaar.esch.Codeopolis.Util.LinkedList;
+import de.htwsaar.esch.Codeopolis.Util.Iterator;
 
+import java.text.DecimalFormat;
 import java.util.Comparator;
-import java.util.Iterator;
 import java.util.NoSuchElementException;
-import java.util.function.Consumer;
 import java.util.function.Predicate;
 
 public class Depot {
     private LinkedList<Silo> silos;
-    
-    private class DepotIterator implements Iterator<Status> {
-    	private int index;
-    	private GrainType type;
-    	
-    	public DepotIterator(GrainType type) {
-    		this.index = 0;
-    		this.type = type;
-    	}
-    	
-		@Override
-		public boolean hasNext() {
-			for(int currentPosition = this.index; currentPosition < silos.size(); currentPosition++) {
-				Silo silo = silos.get(currentPosition);
-				
-				if(silo.getGrainType() == this.type || (silo.getGrainType() == null && silo.getFillLevel() == 0)) {
-					index = currentPosition;
-					return true;
-				}
-			}
-			
-			return false;
-		}
 
-		@Override
-		public Status next() throws NoSuchElementException {
-			if(!this.hasNext()) {
-				throw new NoSuchElementException();
-			}
-			
-			Silo currentSilo = silos.get(index);
-			this.index++;
-			return currentSilo.getStatus();
-		}
-    	
-    }
-    
     /**
      * Constructs a Depot object with the specified number of silos and capacity per silo.
      *
@@ -59,7 +20,7 @@ public class Depot {
      */
     public Depot(int numberOfSilos, int capacityPerSilo) {
         this.silos = new LinkedList<Silo>();
-        for (int index = 0; index < numberOfSilos; index++) {
+        for (int i = 0; i < numberOfSilos; i++) {
             this.silos.addLast(new Silo(capacityPerSilo));
         }
     }
@@ -68,16 +29,11 @@ public class Depot {
      * Constructs a Depot object with the specified array of silos.
      * Each silo in the array is deeply copied to ensure that the Depot has its own separate instances.
      *
-     * @param silosArray The array of Silo objects to be copied into the depot.
+     * @param silos The LinkedList of Silo objects to be copied into the depot.
      */
     public Depot(LinkedList<Silo> silos) {
-    	if (silos == null) {
-            this.silos = silos;
-        } else {
-            this.silos = new LinkedList<Silo>();
-            
-            silos.forEach(this.silos::addLast);
-        }
+        this.silos = new LinkedList<Silo>();
+        silos.forEach(silo -> this.silos.addLast(new Silo(silo))); //Übung 6
     }
 
     /**
@@ -87,36 +43,27 @@ public class Depot {
      * @return The total amount of grain stored in the depot for the specified grain type.
      */
     public int getFillLevel(Game.GrainType grainType) {
-        int totalFillLevel = 0;
-        Iterator<Status> iterator = this.getIterator(grainType);
-        
-        while(iterator.hasNext()) {
-        	try {
-        		Silo.Status status = iterator.next();
-            	totalFillLevel += status.getFillLevel();
-        	} catch(Exception e) {
-        		continue;
-        	}
+        int fillLevel = 0;
+        DepotIterator iterator = new DepotIterator(grainType);
+        while (iterator.hasNext()) {
+            Silo.Status status = iterator.next();
+            fillLevel += status.getFillLevel();
         }
-        
-        return totalFillLevel;
+
+        return fillLevel;
     }
     
     /**
-     * Creates and returns a copy of the silos array.
-     * This method creates a new array and populates it with copies of the Silo objects,
-     * ensuring that modifications to the returned array do not affect the original silos.
+     * Creates and returns a copy of the silos list.
+     * This method creates a new list and populates it with copies of the Silo objects,
+     * ensuring that modifications to the returned list do not affect the original silos.
      *
-     * @return A copy of the silos array.
+     * @return A copy of the silos list.
      */
-    //TODO: Implement the array copy
     public LinkedList<Silo> getSilos() {
-        // Create a new array of Silo with the same length as the original
-        LinkedList<Silo> silosCopy = new LinkedList<Silo>();
-        
-        this.silos.forEach(silosCopy::addLast);
-        
-
+        // Create a new list of Silo with the same length as the original
+        LinkedList<Silo> silosCopy = new LinkedList<>();
+        this.silos.forEach(silo -> silosCopy.addLast(new Silo(silo))); //Übung 6
         return silosCopy;
     }
 
@@ -125,8 +72,10 @@ public class Depot {
      *
      * @return The total amount of bushels stored in the depot.
      */
-    public int getTotalFillLevel(){    	
-    	return (int)this.silos.sum((silo)-> (double)silo.getFillLevel());
+    public int getTotalFillLevel(){
+        return (int) this.silos.sum(silo -> silo.getFillLevel()); //Übung 6
+        // As method reference: (int) this.silos.sum(Silo::getFillLevel);
+        // This is an instance method reference.
     }
     
     /**
@@ -135,23 +84,18 @@ public class Depot {
      * @param grainType The grain type for which to retrieve the capacity.
      * @return The total capacity of the depot for the specified grain type.
      */
-    public int getCapacity(Game.GrainType grainType) {    	
-        int totalCapacity = 0;
-        Iterator<Status> iterator = this.getIterator(grainType);
-        
-        while(iterator.hasNext()) {
-        	try {
-            	Silo.Status siloStatus = iterator.next();
-            	totalCapacity += siloStatus.getCapacity();
-        	} catch(Exception e) {
-        		continue;
-        	}
-        	
-        }
-        
-        return totalCapacity;
-        
+    public int getCapacity(Game.GrainType grainType) {
+        return (int) this.silos.sum(silo -> silo.getGrainType() == grainType ? silo.getCapacity() : 0); //Übung 6
+        /*
+        //Alternatively more verbose:
+        this.silos.sum(silo -> {
+            if(silo.getGrainType() == grainType)
+                return silo.getCapacity();
+            return 0;
+        });
+        */
     }
+
 
     /**
      * Stores a harvest in the depot.
@@ -159,26 +103,28 @@ public class Depot {
      * @param harvest The harvest to be stored in the depot.
      * @return True if the harvest was successfully stored, false otherwise.
      */
-    public boolean store(Harvest harvest) { 
-    	final GrainType harvestGrainType = harvest.getGrainType();
-    	LinkedList<Silo> silosOfGrainType = this.silos.filter((silo)-> silo.getGrainType() == harvestGrainType || silo.getFillLevel() == 0);
-    	
-        for (Silo silo : silosOfGrainType) {
-        	harvest = silo.store(harvest);
+    public boolean store(Harvest harvest) {
+        Game.GrainType harvestGrainType = harvest.getGrainType();
+        Iterator<Silo> iterator = this.silos.filter(s -> s.getGrainType() == harvestGrainType || s.getFillLevel() == 0).iterator();//Übung 6
+        Silo silo;
+        while(iterator.hasNext()) {
+            silo = iterator.next();
+           	harvest = silo.store(harvest);
             if(harvest == null) {
                 return true;
             }
         }
         defragment();
-        for (Silo silo : silosOfGrainType) {
-        	harvest = silo.store(harvest);
-            if(harvest == null) {
+        iterator = this.silos.filter(s -> s.getGrainType() == harvestGrainType || s.getFillLevel() == 0).iterator(); //Übung 6
+        while(iterator.hasNext()) {
+            silo = iterator.next();
+            harvest = silo.store(harvest);
+            if (harvest == null) {
                 return true;
             }
         }
         return false;
     }
-    
 
     /**
      * Takes out a specified amount of grain from the depot for a specific grain type.
@@ -188,10 +134,11 @@ public class Depot {
      * @return The actual amount of grain taken out from the depot.
      */
     public int takeOut(int amount, Game.GrainType grainType) {
-        LinkedList<Silo> listOfGrainType = this.silos.filter((silo)->silo.getGrainType() == grainType);
-    	
-    	int takenAmount = 0;
-        for (Silo silo : listOfGrainType) {
+        int takenAmount = 0;
+        Iterator<Silo> iterator = this.silos.filter(silo -> silo.getGrainType() == grainType).iterator(); //Übung 6
+        Silo silo;
+        while(iterator.hasNext()) {
+            silo = iterator.next();
             int amountTaken = silo.takeOut(amount);
             amount -= amountTaken;
             takenAmount += amountTaken;
@@ -214,31 +161,32 @@ public class Depot {
     public int takeOut(int amount) {
     	if(amount >= this.getTotalFillLevel()){
     		int totalAmountOfBushels =  this.getTotalFillLevel();
-    		
-    		this.silos.forEach(Silo::emptySilo);
-    		
+            this.silos.forEach(silo -> silo.emptySilo()); //Übung 6
+            // As method reference: this.silos.forEach(Silo::emptySilo);
+            // This is an instance method reference.
     		return totalAmountOfBushels;
     	}
     	int partion = amount / this.silos.size();
     	int remainder = amount % this.silos.size();
-    	
-    	for(Silo silo: this.silos) {
-    		if(silo.getFillLevel() < partion) {
-    			remainder += partion - silo.getFillLevel();
-    			silo.emptySilo();
+        Silo current;
+        Iterator<Silo> iterator = this.silos.iterator();
+        while(iterator.hasNext()) {
+            current = iterator.next();
+    		if(current.getFillLevel() < partion) {
+    			remainder += partion - current.getFillLevel();
+                current.emptySilo();
     		}
-    		else {	
-    			silo.takeOut(partion);
+    		else {
+                current.takeOut(partion);
     		}
     	}
-    	
-    	int siloPosition = 0;
+    	int j = 0;
     	while(remainder > 0) {
-    		if(this.silos.get(siloPosition).getFillLevel() > 0) {
-    			this.silos.get(siloPosition).takeOut(1);
+    		if(this.silos.get(j).getFillLevel() > 0) {
+    			this.silos.get(j).takeOut(1);
     			remainder--;
     		}
-    		siloPosition = (siloPosition+1)%Game.GrainType.values().length;	
+    		j = (j+1)%silos.size();
     	}
     	return amount;
     }
@@ -248,40 +196,27 @@ public class Depot {
      *
      * @param numberOfSilos    The number of silos to add.
      * @param capacityPerSilo  The capacity per silo.
+     * @return true if the expansion was successful, false otherwise
      */
-    public void expand(int numberOfSilos, int capacityPerSilo) {        
-        int newSiloSize = this.silos.size() + numberOfSilos;
-        for(int i = silos.size(); i < newSiloSize; i++) {
-        	this.silos.addLast(new Silo(capacityPerSilo));
-        }
-        
-        this.takeOut((int)(numberOfSilos * GameConfig.DEPOT_EXPANSION_COST)); //#Issue42
+    public boolean expand(int numberOfSilos, int capacityPerSilo) {
+        if((capacityPerSilo * numberOfSilos * GameConfig.DEPOT_EXPANSION_COST) > this.getTotalFillLevel())
+            return false; //Expansion costs are too high
+        for(int i = 0; i<numberOfSilos; i++)
+            this.silos.addLast(new Silo(capacityPerSilo));
+        this.takeOut((int)(capacityPerSilo*numberOfSilos * GameConfig.DEPOT_EXPANSION_COST)); //#Issue42
+        return true;
     }
 
     /**
      * Performs defragmentation on the depot to redistribute grain across silos.
      */
     public void defragment() {
-        Harvest[] allHarvests = new Harvest[getTotalHarvestCount()];
-        
-        int index = 0;
-        
-        
-        for (Silo silo : silos) {
-            LinkedList<Harvest> siloHarvests = silo.emptySilo();
-            siloHarvests = siloHarvests.filter((harvest)-> harvest != null);
-            
-        	for (Harvest harvest : siloHarvests) {
-                allHarvests[index++] = harvest;
-            }
-        }
-
-        // Add all harvests back. Store method takes care that silos are not fragmented. 
-        for (Harvest harvest : allHarvests) {
-            if (harvest != null) {
-                store(harvest);
-            }
-        }
+        LinkedList<Harvest> allHarvests = new LinkedList<>();
+        this.silos.forEach(silo -> allHarvests.addAll(silo.emptySilo())); //Übung 6
+        // Add all harvests back. Store method takes care that silos are not fragmented.
+        allHarvests.forEach(harvest -> this.store(harvest)); //Übung 6
+        // As method reference: allHarvests.forEach(this::store);
+        // This is a reference to an instance method of the current object.
     }
 
     /**
@@ -290,11 +225,9 @@ public class Depot {
      * @return The total count of harvests stored in all silos combined.
      */
     private int getTotalHarvestCount() {
-        int totalCount = 0;
-        for (Silo silo : silos) {
-            totalCount += silo.getHarvestCount();
-        }
-        return totalCount;
+        return (int) this.silos.sum(silo -> silo.getHarvestCount()); //Übung 6
+        // As method reference: (int) this.silos.sum(Silo::getHarvestCount);
+        // This is an instance method reference.
     }
 
 
@@ -304,7 +237,14 @@ public class Depot {
      * @return The total amount of grain that decayed in the depot.
      */
     public int decay(int currentYear) {
-        return (int) silos.sum(silo -> (double)silo.decay(currentYear));
+        int totalDecayedAmount = 0;
+        Iterator<Silo> iterator = this.silos.iterator();
+        Silo silo;
+        while (iterator.hasNext()) {
+            silo = iterator.next();
+            totalDecayedAmount += silo.decay(currentYear);
+        }
+        return totalDecayedAmount;
     }
 
 
@@ -314,9 +254,7 @@ public class Depot {
      * @return {@code true} if the total fill level of all silos equals or exceeds the total capacity of the storage system, {@code false} otherwise.
      */
 	public boolean full() {
-		if(this.getTotalFillLevel()>=this.totalCapacity())
-			return true;
-		return false;
+        return this.getTotalFillLevel() >= this.totalCapacity();
 	}
 	
 	/**
@@ -324,8 +262,10 @@ public class Depot {
 	 * 
 	 * @return The total capacity of the storage system.
 	 */
-	public int totalCapacity() {		
-		return (int)silos.sum(silo -> (double)silo.getCapacity());
+	public int totalCapacity() {
+		return (int) this.silos.sum(silo -> silo.getCapacity()); //Übung 6
+        // As method reference: (int) this.silos.sum(Silo::getCapacity);
+        // This is an instance method reference.
 	}
 
 	/**
@@ -351,26 +291,176 @@ public class Depot {
 	 */
 	@Override
 	public String toString() {
-		DepotVisualizer visualizer = new DepotVisualizer();
-		this.silos.forEach(visualizer::appendSiloInfo);
-		
-		
-		return visualizer.visualize();
+
+        class DepotVisualizer {
+            StringBuilder builder = new StringBuilder();
+            DecimalFormat df = new DecimalFormat("0.00");
+
+            int i=0;
+
+            String visualize() {
+
+                return builder.toString();
+            }
+
+            void appendSiloInfo(Silo silo) {
+                builder.append("Silo ").append(i + 1).append(": ");
+
+                String grainName = (silo.getGrainType() != null) ? silo.getGrainType().toString() : "EMPTY";
+                builder.append(grainName).append("\n");
+
+                int fillLevel = silo.getFillLevel();
+                int capacity = silo.getCapacity();
+                double fillPercentage = (double) fillLevel / capacity * 100;
+                double emptyPercentage = 100 - fillPercentage;
+
+                // Absolute amount of grain
+                builder.append("Amount of Grain: ").append(fillLevel).append(" units\n");
+
+                // ASCII-ART representation of the fill level
+                int fillBarLength = 20;
+                int filledBars = (int) (fillPercentage / 100 * fillBarLength);
+                int emptyBars = fillBarLength - filledBars;
+
+                builder.append("|");
+                for (int j = 0; j < filledBars; j++) {
+                    builder.append("=");
+                }
+                for (int j = 0; j < emptyBars; j++) {
+                    builder.append("-");
+                }
+                builder.append("| ").append(df.format(fillPercentage)).append("% filled\n");
+                builder.append("Capacity: ").append(capacity).append(" units\n\n");
+                i++;
+            }
+        }
+
+        this.silos.sort();
+        DepotVisualizer result = new DepotVisualizer();
+        this.silos.forEach(silo -> result.appendSiloInfo(silo));//Übung 6
+        // As method reference: this.silos.forEach(result::appendSiloInfo);
+        // This is an instance method reference to a specific object.
+	    return result.visualize();
 	}
-	
-	
-	
-	public String toString(Predicate<Silo> predicateToPrint, Comparator<Silo> sortComparator) {
-		DepotVisualizer visualizer = new DepotVisualizer();
-		LinkedList<Silo> matchedSilos = this.silos.filter(predicateToPrint);
-		matchedSilos.sort(sortComparator);
-		
-		matchedSilos.forEach(visualizer::appendSiloInfo);
-		return visualizer.visualize();
-	}
-	
-	public DepotIterator getIterator(GrainType grainType) {
-		return this.new DepotIterator(grainType);
-	}
+
+    /**
+     * Provides an iterator over silos of a specific grain type.
+     * @param grainType The grain type for the iterator to focus on.
+     * @return An iterator over SiloStatus for the specified grain type.
+     */
+    public Iterator iterator(Game.GrainType grainType) {
+        return new DepotIterator(grainType);
+    }
+
+
+    /**
+     * Provides an iterator over silos of a specific grain type within the depot.
+     * This iterator allows for the traversal of only those silos that store a specified type of grain,
+     * returning the status of each through {@link Silo.Status} objects.
+     *
+     * This class implements the {@link Iterator} interface, enabling sequential access to the silo statuses.
+     * It maintains an internal cursor to track the current index of silos being accessed to ensure
+     * that only silos matching the specified grain type are considered.
+     *
+     * Usage Example:
+     * <pre>
+     * DepotIterator iterator = depot.new DepotIterator(Game.GrainType.WHEAT);
+     * while (iterator.hasNext()) {
+     *     Silo.SiloStatus status = iterator.next();
+     *     // Process status
+     * }
+     * </pre>
+     *
+     * @see Silo.Status
+     */
+    private class DepotIterator implements Iterator {
+        private int currentIndex = 0;
+        private Game.GrainType grainType;
+
+        /**
+         * Constructs an iterator for silos containing a specific type of grain.
+         *
+         * @param grainType The grain type that this iterator will traverse.
+         */
+        public DepotIterator(Game.GrainType grainType) {
+            this.grainType = grainType;
+            advanceIndex();
+        }
+
+        /**
+         * Advances the cursor to the next silo that contains the specified grain type.
+         */
+        private void advanceIndex() {
+            while(currentIndex < silos.size() && silos.get(currentIndex).getGrainType() != grainType && silos.get(currentIndex).getFillLevel() > 0){
+                currentIndex++;
+            }
+        }
+
+        /**
+         * Determines if there are any more silos that contain the specified grain type.
+         *
+         * @return {@code true} if there are additional silos to be iterated over; {@code false} otherwise.
+         */
+        @Override
+        public boolean hasNext() {
+            return currentIndex < silos.size();
+        }
+
+        /**
+         * Returns the status of the next silo containing the specified grain type.
+         * This method should only be called if {@code hasNext()} returns {@code true}.
+         *
+         * @return The {@link Silo.Status} of the next relevant silo.
+         * @throws NoSuchElementException if there are no more silos to iterate over.
+         */
+        @Override
+        public Silo.Status next() {
+            if (!hasNext()) {
+                throw new NoSuchElementException("No more silos available of the specified grain type.");
+            }
+            Silo.Status status = silos.get(currentIndex).getStatus();
+            currentIndex++;
+            advanceIndex();
+            return status;
+        }
+    }
+
+    /**
+     * Filters the silos by grain type.
+     *
+     * @param grainType The grain type to filter by.
+     * @return A new LinkedList containing silos of the specified grain type.
+     */
+    public LinkedList<Silo> getSilosByGrainType(Game.GrainType grainType) {
+        return this.silos.filter(silo -> silo.getGrainType() == grainType);
+    }
+
+    /**
+     * Filters the silos to get fully filled silos.
+     *
+     * @return A new LinkedList containing fully filled silos.
+     */
+    public LinkedList<Silo> getFullSilos() {
+        return this.silos.filter(silo -> silo.getFillLevel() == silo.getCapacity());
+    }
+
+    /**
+     * Converts the details of silos in the depot, including harvest details, with optional filtering and sorting, to a string.
+     *
+     * @param filter The predicate to filter silos (can be null if no filtering is needed).
+     * @param comparator The comparator to sort silos (can be null if no sorting is needed).
+     * @return A string representation of the silos.
+     */
+    public String toString(Predicate<Silo> filter, Comparator<Silo> comparator) {
+        StringBuilder builder = new StringBuilder();
+        LinkedList<Silo> filteredSilos = (filter != null) ? this.silos.filter(filter) : this.silos;
+        if (comparator != null) {
+            filteredSilos.sort(comparator);
+        }
+
+        filteredSilos.forEach(silo -> builder.append(silo.toString()).append("\n"));
+
+        return builder.toString();
+    }
 
 }

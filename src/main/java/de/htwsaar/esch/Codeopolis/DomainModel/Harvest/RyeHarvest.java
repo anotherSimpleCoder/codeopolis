@@ -18,11 +18,11 @@ public class RyeHarvest extends Harvest implements Serializable{
      * @param bushels The amount of rye harvested.
      * @param year The year in which the harvest occurred.
      */
-	protected RyeHarvest(int bushels, int year) {
-        super(bushels, year);
+    protected RyeHarvest(int bushels, int year, float growsConditions) {
+        super(bushels, year, growsConditions);
     }
 
-    
+
     /**
      * Simulates the decay of rye grain in the harvest over time.
      * Rye has a shelf life of 4 years, after which it starts decaying.
@@ -38,7 +38,7 @@ public class RyeHarvest extends Harvest implements Serializable{
             double decayPercentage = 0.01;
             for (int i = 1; i < yearsOfDecay; i++)
                 decayPercentage += 0.02;
-
+            decayPercentage = decayPercentage * this.calculateDecayModifier();
             int decayedAmount = (int) (this.getAmount() * decayPercentage);
             this.remove(decayedAmount);
             return decayedAmount;
@@ -54,6 +54,6 @@ public class RyeHarvest extends Harvest implements Serializable{
      */
     @Override
     public Game.GrainType getGrainType() {
-    	return Game.GrainType.RYE;
+        return Game.GrainType.RYE;
     }
 }

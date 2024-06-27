@@ -20,9 +20,9 @@ public class DepotTest {
     @BeforeEach
     public void setUp() {
         depot = new Depot(3, 1000);
-        wheatHarvest = Harvest.createHarvest(Game.GrainType.WHEAT, 500, 2023);
-        cornHarvest = Harvest.createHarvest(Game.GrainType.CORN, 700, 2023); 
-        cornHarvest2 = Harvest.createHarvest(Game.GrainType.CORN, 700, 2023);
+        wheatHarvest = Harvest.createHarvest(Game.GrainType.WHEAT, 500, 2023, 1f);
+        cornHarvest = Harvest.createHarvest(Game.GrainType.CORN, 700, 2023, 1f);
+        cornHarvest2 = Harvest.createHarvest(Game.GrainType.CORN, 700, 2023, 1f);
     }
 
     @Test
@@ -42,7 +42,7 @@ public class DepotTest {
         takenOut = depot.takeOut(400, Game.GrainType.WHEAT);
         assertEquals(300, takenOut);
         assertEquals(0, depot.getFillLevel(Game.GrainType.WHEAT));
-        
+
         takenOut = depot.takeOut(1000, Game.GrainType.CORN);
         assertEquals(1000, takenOut);
         assertEquals(400, depot.getFillLevel(Game.GrainType.CORN));
@@ -53,10 +53,10 @@ public class DepotTest {
 
     @Test
     public void testExpand() {
-        depot.expand(2, 1500);
-        assertEquals(6000, depot.getCapacity(Game.GrainType.WHEAT));
-        assertEquals(6000, depot.getCapacity(Game.GrainType.CORN));
+        assertTrue(depot.store(wheatHarvest));
+        depot.expand(2, 100);
+        assertEquals(5, depot.getSilos().size());
     }
 
-  
+
 }

@@ -11,7 +11,7 @@ public abstract class SpringGrain extends Grain{
 	private final float OPTIMAL_SUMMER_TEMPERATURE = 18f;
 	
 	// The heat resistance factor of the spring grain.
-	private float heatResistance;
+	private final float heatResistance;
 	
     /**
      * Constructs a new `SpringGrain` object with the specified parameters.

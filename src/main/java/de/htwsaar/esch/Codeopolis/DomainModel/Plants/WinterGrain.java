@@ -11,14 +11,14 @@ public abstract class WinterGrain extends Grain {
 	private final float OPTIMAL_WINTER_TEMPERATURE = 3.3f;
 	
 	// The cold resistance factor of the winter grain.
-	private float coldResistence;
+	private final float coldResistence;
 	
     /**
      * Constructs a new `WinterGrain` object with the specified parameters.
      *
      * @param basicYieldRatio            The basic yield ratio of the grain.
      * @param cropFailureDueToBadConditions The crop failure due to bad conditions.
-     * @param coldResistance             The cold resistance factor of the grain.
+     * @param coldResistence             The cold resistance factor of the grain.
      */
 	public WinterGrain(float basicYieldRatio, float cropFailureDueToBadConditions, float coldResistence) {
 		super(basicYieldRatio, cropFailureDueToBadConditions);

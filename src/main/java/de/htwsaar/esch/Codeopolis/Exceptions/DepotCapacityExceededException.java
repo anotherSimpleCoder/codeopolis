@@ -4,7 +4,7 @@ package de.htwsaar.esch.Codeopolis.Exceptions;
  * Exception thrown when an operation attempts to exceed the depot's capacity.
  */
 public class DepotCapacityExceededException extends GameException {
-    private int depotCapacity;
+    private final int depotCapacity;
 
     /**
      * Constructs a new DepotCapacityExceededException with the specified detail message and the depot capacity.

@@ -60,7 +60,7 @@ public interface UserInterface {
      *
      * @param result The result of the turn.
      */
-	void turnEnd(TurnResult result);
+	void turnEnd(City.TurnResult result);
 	
 	/**
      * Handles illegal user input.

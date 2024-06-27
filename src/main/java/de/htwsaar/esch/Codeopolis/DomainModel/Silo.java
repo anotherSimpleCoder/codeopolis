@@ -1,47 +1,50 @@
 package de.htwsaar.esch.Codeopolis.DomainModel;
 
-
 import de.htwsaar.esch.Codeopolis.DomainModel.Harvest.*;
-import de.htwsaar.esch.Codeopolis.Utils.LinkedList;
-
+import de.htwsaar.esch.Codeopolis.Util.Iterator;
+import de.htwsaar.esch.Codeopolis.Util.LinkedList;
 import java.io.Serializable;
+import java.text.DecimalFormat;
 
 /**
  * The Silo class represents a storage unit for a specific type of grain.
  */
-public class Silo implements Serializable, Comparable<Silo> {
+public class Silo implements Serializable, Comparable<Silo>{
     private LinkedList<Harvest> stock;
     private final int capacity;
-    private int fillLevel;
-    private int stockIndex = -1;
-    
+
+
+    @Override
+    public int compareTo(Silo other) {
+        return Integer.compare(this.getFillLevel(), other.getFillLevel());
+    }
+
     public class Status {
-    	private int capacity;
-    	private int fillLevel;
-    	
-    	private Status(int capacity, int fillLevel) {
-    		this.capacity = capacity;
-    		this.fillLevel = fillLevel;
-    	}
-    	
-    	public int getCapacity() {
-			return capacity;
-		}
-    	
-    	public int getFillLevel() {
-			return fillLevel;
-		}
+        private final int capacity;
+        private final int fillLevel;
+
+        private Status() {
+            this.capacity = Silo.this.capacity;
+            this.fillLevel = Silo.this.getFillLevel();
+        }
+
+        public int getCapacity() {
+            return capacity;
+        }
+
+        public int getFillLevel() {
+            return fillLevel;
+        }
     }
 
     /**
      * Constructs a Silo object with the specified initial capacity.
      *
-     * @param initialCapacity The initial capacity of the silo.
+     * @param capacity The initial capacity of the silo.x
      */
     public Silo(int capacity) {
         this.capacity = capacity;
-        this.stock = new LinkedList<Harvest>();
-        this.fillLevel = 0;
+        this.stock = new LinkedList<>();
     }
     
     /**
@@ -54,10 +57,26 @@ public class Silo implements Serializable, Comparable<Silo> {
      */
     public Silo(Silo other) {
         this.capacity = other.capacity;
-        this.fillLevel = other.fillLevel;
-        this.stockIndex = other.stockIndex;
 
-        this.stock = other.stock;
+        this.stock = new LinkedList<>();
+        this.stock = other.getStockCopy();
+    }
+
+    protected LinkedList<Harvest> getStockCopy()
+    {
+        LinkedList<Harvest> copy = new LinkedList<Harvest>();
+        this.stock.forEach(current -> copy.addLast(Harvest.createHarvest(current))); //Übung 6
+        return copy;
+    }
+
+    /**
+     * Copies the stock from another Silo object to this one.
+     * This method creates a deep copy of each Harvest object.
+     *
+     * @param other The Silo object to copy from.
+     */
+    private void copyStock(LinkedList<Harvest> other){
+        other.forEach(current -> this.stock.addLast(Harvest.createHarvest(current))); //Übung 6
     }
 
     /**
@@ -68,34 +87,26 @@ public class Silo implements Serializable, Comparable<Silo> {
      */
     public Harvest store(Harvest harvest) {
     	 // Check if the grain type matches the existing grain in the silo
-        if (fillLevel > 0 && stock.get(0).getGrainType() != harvest.getGrainType()) {
+        if (getFillLevel() > 0 && stock.get(0).getGrainType() != harvest.getGrainType()) {
             throw new IllegalArgumentException("The grain type of the given Harvest does not match the grain type of the silo");
         }
         
         // Check if there is enough space in the silo
-        if (fillLevel >= capacity) {
+        if (getFillLevel() >= capacity) {
             return harvest; // The silo is already full, cannot be stored
         }
-
         
-        
-        if(fillLevel < capacity) {
+        if(getFillLevel() < capacity) {
 	        // Check if the entire harvest can be stored
-	        int remainingCapacity = this.capacity - this.fillLevel;
-	        
-	        
+	        int remainingCapacity = this.capacity - this.getFillLevel();
 	        if(harvest.getAmount() <= remainingCapacity) {
-	        	this.stockIndex++;
 	        	this.stock.addLast(harvest);
-	        	this.fillLevel += harvest.getAmount();
 	        	return null;
 	        }
 	        else {
 	        	// Split the harvest and store the remaining amount
 	            Harvest remainingHarvest = harvest.split(remainingCapacity);
-	            this.stockIndex++;
-	            this.stock.addLast(remainingHarvest);
-	            this.fillLevel += remainingHarvest.getAmount();
+	            stock.addLast(remainingHarvest); // Store the remaining harvest in the current depot
 	            return harvest; // Return the surplus amount
 	        }
         }
@@ -112,21 +123,19 @@ public class Silo implements Serializable, Comparable<Silo> {
      *         If the silo is empty, an empty array is returned.
      */
     public LinkedList<Harvest> emptySilo() {
-        if (stockIndex == -1) {
+        if (this.stock.isEmpty()) {
             return null;
         }
         else {
-        	LinkedList<Harvest> removedHarvests = new LinkedList<Harvest>();
-        	this.stock.forEach((harvest)-> removedHarvests.addLast(harvest));
-        	
-        	stock.clear();
-        	
-            stockIndex = -1;
-            fillLevel = 0;
+            LinkedList<Harvest> removedHarvests = new LinkedList<Harvest>();
+            this.stock.forEach(current -> removedHarvests.addLast(current)); //Übung 6
+            // As method reference: this.stock.forEach(removedHarvests::addLast);
+            // This is an instance method reference to a specific object.
+            stock.clear();
+            stock.clear();
             return removedHarvests;
         }
     }
-    
 
 
 
@@ -138,8 +147,7 @@ public class Silo implements Serializable, Comparable<Silo> {
      */
     public int takeOut(int amount) {
         int takenAmount = 0;
-
-        for (int i = 0; i <= stockIndex && amount > 0; i++) {
+        for (int i = 0; i < stock.size() && amount > 0; i++) {
             Harvest currentHarvest = stock.get(i);
             int taken = currentHarvest.remove(amount);
             amount -= taken;
@@ -147,15 +155,10 @@ public class Silo implements Serializable, Comparable<Silo> {
 
             if (currentHarvest.getAmount() == 0) {
                 // Remove empty harvest
-                for (int j = i; j < stockIndex; j++) {
-                    stock.set(stock.get(j + 1), j);
-                }
-                stock.remove(stockIndex);
-                stockIndex--;
+                stock.remove(i);
                 i--; // Check the same index again, as a new harvest may have been moved here
             }
         }
-        this.fillLevel -= takenAmount;
         return takenAmount;
     }
 
@@ -165,7 +168,9 @@ public class Silo implements Serializable, Comparable<Silo> {
      * @return The number of harvests currently stored in the silo.
      */
     public int getFillLevel() {
-    	return this.fillLevel;
+        return (int) this.stock.sum(harvest -> harvest.getAmount());
+        // As method reference: (int) this.stock.sum(Harvest::getAmount);
+        // This is an instance method reference.
     }
 
     /**
@@ -184,9 +189,9 @@ public class Silo implements Serializable, Comparable<Silo> {
      */
     public Game.GrainType getGrainType() {
         // Assuming each silo stores only one type of grain, we can retrieve the grain type from the first stored harvest
-        if (fillLevel > 0 && stock.get(0) != null) {
+        if (getFillLevel() > 0 && stock.get(0) != null) {
             return stock.get(0).getGrainType();
-        } 
+        }
         else {
             return null; 
         }
@@ -198,12 +203,8 @@ public class Silo implements Serializable, Comparable<Silo> {
      * @return The number of harvests stored in the silo.
      */
     public int getHarvestCount() {
-        return this.stockIndex+1;
+        return this.stock.size();
     }
-    
-    public Status getStatus() {
-		return new Status(this.capacity, this.fillLevel);
-	}
     
     /**
      * Simulates the decay of grain in all harvests stored in the silo over time.
@@ -212,29 +213,75 @@ public class Silo implements Serializable, Comparable<Silo> {
      * @return The total amount of grain that decayed in all harvests in the silo.
      */
     public int decay(int currentYear) {
-        double totalDecayAmount = this.stock.sum((harvest)-> (double) harvest.decay(currentYear));
-
-        fillLevel -= totalDecayAmount;
-        return (int) totalDecayAmount;
-    }
-    
-    public LinkedList<Harvest> getStockCopy() {
-    	LinkedList<Harvest> stockCopy = new LinkedList<Harvest>();
-    	this.stock.forEach(stockCopy::addLast);
-    	
-    	return stockCopy;
+        int totalDecayedAmount = 0;
+        Iterator<Harvest> iterator = this.stock.iterator();
+        Harvest currentHarvest;
+        while (iterator.hasNext()){
+            currentHarvest = iterator.next();
+            totalDecayedAmount += currentHarvest.decay(currentYear);
+        }
+        this.removeEmptyHarvests();//Übung 6
+        return totalDecayedAmount;
     }
 
-    //What exactly does this do?
-    public void copyStock(LinkedList<Harvest> other) {
-    	other.forEach(harvest -> {
-    		this.stock.addLast(harvest);
-    	});
+    /**
+     * Retrieves the status of the silo, including its capacity and fill level.
+     *
+     * @return A SiloStatus object representing the current state of the silo.
+     */
+    public Status getStatus() {
+        return new Status();
     }
-    
-	@Override
-	public int compareTo(Silo o) {
-		return Integer.compare(this.fillLevel, o.fillLevel);
-	}
+
+
+    /**
+     * Removes all empty Harvest objects from the silo.
+     */
+    private void removeEmptyHarvests() {
+        stock.removeIf(harvest -> harvest.getAmount() == 0);
+        // As method reference: stock.removeIf(Harvest::isEmpty);
+        // This is an instance method reference. However, this would require an isEmpty method to exist in the Harvest class.
+    }
+
+    /**
+     * Returns a string representation of the silo, including its grain type, capacity, fill level, and harvest details.
+     *
+     * @return A string containing information about the silo, including the grain type, capacity, fill level, and harvest details.
+     */
+    @Override
+    public String toString() {
+        StringBuilder builder = new StringBuilder();
+        DecimalFormat df = new DecimalFormat("0.00");
+
+        String grainName = (getGrainType() != null) ? getGrainType().toString() : "EMPTY";
+        builder.append("Silo:\n");
+        builder.append("  Grain Type: ").append(grainName).append("\n");
+        builder.append("  Capacity: ").append(getCapacity()).append("\n");
+        builder.append("  Fill Level: ").append(getFillLevel()).append("\n");
+
+        // ASCII-ART representation of the fill level
+        double fillPercentage = (double) getFillLevel() / getCapacity() * 100;
+        int fillBarLength = 20;
+        int filledBars = (int) (fillPercentage / 100 * fillBarLength);
+        int emptyBars = fillBarLength - filledBars;
+
+        builder.append("  Fill Status: |");
+        for (int j = 0; j < filledBars; j++) {
+            builder.append("=");
+        }
+        for (int j = 0; j < emptyBars; j++) {
+            builder.append("-");
+        }
+        builder.append("| ").append(df.format(fillPercentage)).append("% filled\n");
+
+        builder.append("  Harvests:\n");
+        Iterator<Harvest> iterator = this.stock.iterator();
+        while (iterator.hasNext()) {
+            Harvest harvest = iterator.next();
+            builder.append("    - Year: ").append(harvest.getYear()).append(", Amount: ").append(harvest.getAmount()).append("\n");
+        }
+
+        return builder.toString();
+    }
 }
 

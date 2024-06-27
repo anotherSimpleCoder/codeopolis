@@ -8,10 +8,8 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
 
 import de.htwsaar.esch.Codeopolis.DomainModel.City;
-import de.htwsaar.esch.Codeopolis.DomainModel.CityState;
 import de.htwsaar.esch.Codeopolis.DomainModel.Game;
 import de.htwsaar.esch.Codeopolis.DomainModel.GameConfig;
-import de.htwsaar.esch.Codeopolis.DomainModel.TurnResult;
 import de.htwsaar.esch.Codeopolis.Exceptions.*;
 import de.htwsaar.esch.Codeopolis.DomainModel.Game.Difficulty;
 
@@ -217,9 +215,7 @@ class CityTest {
 	
 	/**
      * Parameterized test for planting acres without enough available residents in the city.
-     * 
-     * @param testData The test data array containing input and expected output values.
-     */
+	 */
 	@Test
 	void testPlantEnoughtResidents() {
 		testCity.IDKFA();

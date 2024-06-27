@@ -9,10 +9,10 @@ import java.util.InputMismatchException;
 import java.util.NoSuchElementException;
 import java.util.Scanner;
 
+import de.htwsaar.esch.Codeopolis.DomainModel.City;
 import de.htwsaar.esch.Codeopolis.DomainModel.CityState;
 import de.htwsaar.esch.Codeopolis.DomainModel.Game;
 import de.htwsaar.esch.Codeopolis.DomainModel.GameConfig;
-import de.htwsaar.esch.Codeopolis.DomainModel.TurnResult;
 
 /**
  * The Dialog class represents a command line interface for the Codeopolis game.
@@ -29,15 +29,14 @@ public class Dialog extends UserInterface{
 	private static final int HARD = 3;
 	
 	private Game currentGame;
-	private DepotDetailsDialog depotDetails;
 	
 	/**
      * Initializes a new instance of the Dialog class.
      */
     public Dialog() {
-    	this.input = new Scanner(System.in);
-    	this.currentGame = null;
-    	this.depotDetails = null;
+    	input = new Scanner(System.in);
+    	currentGame = null;
+    	
     }
 
     /**
@@ -76,7 +75,6 @@ public class Dialog extends UserInterface{
     /**
 	 * Executes the function selected by the user in the main menu.
 	 *
-	 * @return The selected function as an integer.
 	 */
     private void executeFunction(int funktion) {
     	switch (funktion) {
@@ -156,9 +154,8 @@ public class Dialog extends UserInterface{
 			default:
 				throw new UnsupportedOperationException("The selected difficulty level "+difficulty+" is not implemented.");
 		}
-	    this.currentGame = new Game(java.util.UUID.randomUUID().toString(), cityName, newGameDifficulty, this); //Issue#11
-	    this.depotDetails = new DepotDetailsDialog(currentGame);
-	    this.currentGame.startGame();
+	    currentGame = new Game(java.util.UUID.randomUUID().toString(), cityName, newGameDifficulty, this); //Issue#11
+	    currentGame.startGame();
 	}
 	
 	private void saveGame() {
@@ -218,60 +215,26 @@ public class Dialog extends UserInterface{
     }
 	
 	/**
-     * Reads a positive integer input from the user recursively.
+     * Reads a positive integer input from the user.
      *
      * @return The positive integer entered by the user.
      */
 	private int readPositivIntegerInput() {
-		/*
-		 * result = input()
-		 * 
-		 * if(result >= 0):
-		 * 	return result
-		 * 
-		 * fehlermeldung
-		 * return readPositivIntegerInput()
-		 */
-		int result = -1;
 		try {
-			result = input.nextInt();
-		} catch(NumberFormatException e) {
-	 		System.out.println("Error – Please enter an integer value");
+			int result = Integer.parseInt(input.next());
+			if (result >= 0) {
+				return result;
+			} else {
+				System.out.println("You entered a negative integer. Please try again.");
+			}
+		} catch (NumberFormatException e) {
+			System.out.println("Error – Please enter an integer value.");
+		} catch (NoSuchElementException e) {
+			System.out.println(e.getMessage());
+		} catch (IllegalStateException e) {
+			System.out.println(e.getMessage());
 		}
-	 	catch(NoSuchElementException e) {
-	 		System.out.println(e);
-	 	}
-	 	catch(IllegalStateException e) {
-	 		System.out.println(e);
-	 	}
-
-		if(result >= 0) {
-			return result;
-		}
-
-		System.out.println("You entered a negative integer. Please try again.");
-		return readPositivIntegerInput();		
-
-		// int result = -1;
-		// String line;
-		// while(result < 0) {
-		// 	try {
-		// 		line = input.next();
-		// 		result = Integer.parseInt(line);
-		// 		if(result < 0)
-		// 			System.out.println("You entered a negative integer. Please try again.");
-		// 	}
-		// 	catch(NumberFormatException e) {
-		// 		System.out.println("Error – Please enter an integer value");
-		// 	}
-		// 	catch(NoSuchElementException e) {
-		// 		System.out.println(e);
-		// 	}
-		// 	catch(IllegalStateException e) {
-		// 		System.out.println(e);
-		// 	}
-		// }
-		// return result;
+		return readPositivIntegerInput();
 	}
 	
 	@Override
@@ -332,7 +295,7 @@ public class Dialog extends UserInterface{
 	}
 	
 	@Override
-	public void turnEnd(TurnResult result) {
+	public void turnEnd(City.TurnResult result) {
 		System.out.println("\n=== TURN ENDED ===");
 		System.out.println("Year "+result.getYear()+" of your great city "+result.getName()+" is over.");
 		System.out.println(result.getStarved()+" people starved.");
@@ -354,10 +317,9 @@ public class Dialog extends UserInterface{
 		}
 			
 		System.out.println("Here is the detaild information on your depot:");
-		this.depotDetails.start();
 		System.out.println(result.getDepotState());
 		
-		System.out.println("Press some key to start the new year. Enter SAVE to save the current game and continue. Enter QUIT to quit the current game. ");
+		System.out.println("Press some key to start the new year. Enter SAVE to save the current game and continue. Enter QUIT to quit the current game. Enter DETAILS to explore depot details.");
 		String in = "";
 		try {
 			in = input.next().trim();
@@ -367,6 +329,10 @@ public class Dialog extends UserInterface{
 		}
 		catch(IllegalStateException e) {
 			System.out.println(e);
+		}
+		if(in.equals("DETAILS")){
+			DepotDetailsDialog depotDetailsDialog = new DepotDetailsDialog(this.currentGame);
+			depotDetailsDialog.start();
 		}
 		if(in.equals("IDKFA")) 
 			this.currentGame.IDKFA();

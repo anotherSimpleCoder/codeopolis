@@ -8,33 +8,32 @@ package de.htwsaar.esch.Codeopolis.DomainModel.Plants;
 public class Millet extends SpringGrain {
 
 	/**
-     * Constructs a new `Millet` object with predefined characteristics.
-     */
+	 * Constructs a new `Millet` object with predefined characteristics.
+	 */
 	public Millet() {
 		super(2f, 0.1f, 0.45f);
 	}
 
 	/**
-     * Overrides the `drought` method from the parent class `SpringGrain` to specify
-     * how millet responds to drought conditions by reducing its yield ratio.
-     */
-    @Override
+	 * Overrides the `drought` method from the parent class `SpringGrain` to specify
+	 * how millet responds to drought conditions by reducing its yield ratio.
+	 */
+	@Override
 	public void drought() {
 		this.yieldRatio *= 0.95f;
 	}
 
-    /**
-     * Overrides the `pestInfestation` method from the parent class `SpringGrain` to specify
-     * how millet responds to pest infestation, specifically Barley Gout Fly, based on soil conditions.
-     *
-     * @param pest       The type of pest infestation.
-     * @param conditions The environmental conditions affecting grain growth.
-     */
-    @Override
-	public void pestInfestation(Pests pest, Conditions conditions) {
+	/**
+	 * Overrides the `pestInfestation` method from the parent class `SpringGrain` to specify
+	 * how millet responds to pest infestation, specifically Barley Gout Fly, based on soil conditions.
+	 *
+	 * @param pest       The type of pest infestation.
+	 */
+	@Override
+	public void pestInfestation(Pests pest) {
 		switch(pest) {
 			case BarleyGoutFly:
-				if(conditions.getSoilConditions() < 0.8)
+				if(this.getConditions().getSoilConditions() < 0.8)
 					this.yieldRatio *= 0.85f;
 				else
 					this.yieldRatio *= 0.9f;
@@ -44,17 +43,16 @@ public class Millet extends SpringGrain {
 		}
 	}
 
-    /**
-     * Overrides the `diseaseOutbreak` method from the parent class `SpringGrain` to specify
-     * that millet is not vulnerable to diseases and does not have a yield reduction due to disease outbreaks.
-     *
-     * @param disease    The type of disease outbreak.
-     * @param conditions The environmental conditions affecting grain growth.
-     */
-    @Override
-	public void diseaseOutbreak(Diseases disease, Conditions conditions) {
+	/**
+	 * Overrides the `diseaseOutbreak` method from the parent class `SpringGrain` to specify
+	 * that millet is not vulnerable to diseases and does not have a yield reduction due to disease outbreaks.
+	 *
+	 * @param disease    The type of disease outbreak.
+	 */
+	@Override
+	public void diseaseOutbreak(Diseases disease) {
 		// Millet is not vulnerable to diseases
-		
+
 	}
 
 

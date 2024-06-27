@@ -18,10 +18,10 @@ public class MilletHarvest extends Harvest implements Serializable{
      * @param bushels The amount of millet harvested.
      * @param year The year in which the harvest occurred.
      */
-	protected MilletHarvest(int bushels, int year) {
-        super(bushels, year);
+    protected MilletHarvest(int bushels, int year, float growsConditions) {
+        super(bushels, year, growsConditions);
     }
-    
+
 
     /**
      * Simulates the decay of millet grain in the harvest over time.
@@ -33,11 +33,12 @@ public class MilletHarvest extends Harvest implements Serializable{
      */
     @Override
     public int decay(int currentYear) {
-        if (currentYear > this.getYear() + 4) {
-            int yearsOfDecay = currentYear - this.getYear() - 4;
-            double decayPercentage = 0.01;
-            for (int i = 1; i < yearsOfDecay; i++)
-                decayPercentage += 0.02;
+        int yearsSinceHarvest = currentYear - this.getYear();
+        if (yearsSinceHarvest > 4) {
+            int yearsOfDecay = yearsSinceHarvest - 4;
+            double baseDecayRate = 0.02;  // Base decay rate per year after the shelf life
+            double decayModifier = calculateDecayModifier();  // Adjust decay rate based on durability
+            double decayPercentage = baseDecayRate * yearsOfDecay * decayModifier;
 
             int decayedAmount = (int) (this.getAmount() * decayPercentage);
             this.remove(decayedAmount);
@@ -54,7 +55,7 @@ public class MilletHarvest extends Harvest implements Serializable{
      */
     @Override
     public Game.GrainType getGrainType() {
-    	return Game.GrainType.MILLET;
+        return Game.GrainType.MILLET;
     }
 }
 

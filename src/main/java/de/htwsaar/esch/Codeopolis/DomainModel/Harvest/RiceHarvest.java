@@ -18,12 +18,12 @@ public class RiceHarvest extends Harvest implements Serializable{
      * @param bushels The amount of rice harvested.
      * @param year The year in which the harvest occurred.
      */
-	protected RiceHarvest(int bushels, int year) {
-        super(bushels, year);
+    protected RiceHarvest(int bushels, int year, float growsConditions) {
+        super(bushels, year, growsConditions);
     }
 
 
-    
+
     /**
      * Simulates the decay of rice grain in the harvest over time.
      * Rice has a shelf life of 1 year, after which it starts decaying.
@@ -39,7 +39,7 @@ public class RiceHarvest extends Harvest implements Serializable{
             double decayPercentage = 0.02;
             for (int i = 1; i < yearsOfDecay; i++)
                 decayPercentage *= 2;
-
+            decayPercentage = decayPercentage * this.calculateDecayModifier();
             int decayedAmount = (int) (this.getAmount() * decayPercentage);
             this.remove(decayedAmount);
             return decayedAmount;
@@ -55,6 +55,6 @@ public class RiceHarvest extends Harvest implements Serializable{
      */
     @Override
     public Game.GrainType getGrainType() {
-    	return Game.GrainType.RICE;
+        return Game.GrainType.RICE;
     }
 }

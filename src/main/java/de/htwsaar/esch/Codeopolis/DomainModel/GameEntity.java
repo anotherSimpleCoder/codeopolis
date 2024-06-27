@@ -5,7 +5,7 @@ package de.htwsaar.esch.Codeopolis.DomainModel;
  * It serves as a base class for other game entities and provides a unique identifier for each entity.
  */
 public abstract class GameEntity {
-    private String id; // The unique identifier for the entity
+    private final String id; // The unique identifier for the entity
 
     /**
      * Constructs a `GameEntity` object with the specified identifier.
