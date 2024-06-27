@@ -102,7 +102,7 @@ public abstract class Harvest implements Serializable, Comparable<Harvest> {
      *
      * @return The durability of the harvest.
      */
-    protected float getDurability() {
+    public float getDurability() {
         return durability;
     }
 
@@ -208,5 +208,5 @@ public abstract class Harvest implements Serializable, Comparable<Harvest> {
         return Integer.compare(this.year, other.year);
     }
 
-
+    
 }
